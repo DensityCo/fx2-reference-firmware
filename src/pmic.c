@@ -58,7 +58,7 @@
 #include <lights.h>
 #include <eputils.h>
 #include <i2c.h>
-#include <fx2timer.h>
+//#include <fx2timer.h>
 #include <gpif_fifowrite_ctl2_data.h>
 #include <pmic_reg.h>
 #include <pmic.h>

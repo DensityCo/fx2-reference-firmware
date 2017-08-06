@@ -1,0 +1,908 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 1.
+Hexadecimal [24-Bits]
+
+
+
+                                      1 
+                                      2 	;---------------------------------------------------
+                                      3 	; constants-----------------------------------------
+                                      4 	;---------------------------------------------------
+                           00000F     5 	CY_FX_BOS_DSCR_TYPE				=	15
+                           000010     6 	CY_FX_DEVICE_CAPB_DSCR_TYPE		=	16
+                           000030     7 	CY_FX_SS_EP_COMPN_DSCR_TYPE		=	48
+                                      8 
+                                      9 	;---------------------------------------------------
+                                     10 	;  Device Capability Type Codes
+                                     11 	;---------------------------------------------------
+                           000001    12 	CY_FX_WIRELESS_USB_CAPB_TYPE	=	1
+                           000002    13 	CY_FX_USB2_EXTN_CAPB_TYPE		=	2
+                           000003    14 	CY_FX_SS_USB_CAPB_TYPE			=	3
+                           000004    15 	CY_FX_CONTAINER_ID_CAPBD_TYPE	=	4
+                                     16 
+                                     17 	;---------------------------------------------------
+                                     18 	;  descriptor types
+                                     19 	;---------------------------------------------------
+                           000001    20 	CY_FX_USB_DEVICE_DESCR = 0x01				;  Device descriptor
+                           000002    21 	CY_FX_USB_CONFIG_DESCR = 0x02				;  Configuration descriptor
+                           000003    22 	CY_FX_USB_STRING_DESCR = 0x03				;  String descriptor
+                           000004    23 	CY_FX_USB_INTRFC_DESCR = 0x04				;  Interface descriptor
+                           000005    24 	CY_FX_USB_ENDPNT_DESCR = 0x05				;  Endpoint descriptor
+                           000006    25 	CY_FX_USB_DEVQUAL_DESCR = 0x06				;  Device Qualifier descriptor
+                           000007    26 	CY_FX_USB_OTHERSPEED_DESCR = 0x07			;  Other Speed Configuration descriptor
+                           000008    27 	CY_FX_USB_INTRFC_POWER_DESCR = 0x08			;  Interface power descriptor descriptor
+                           000009    28 	CY_FX_USB_OTG_DESCR = 0x09					;  OTG descriptor
+                           00000F    29 	CY_FX_BOS_DESCR = 0x0F						;  BOS descriptor
+                           000010    30 	CY_FX_DEVICE_CAPB_DESCR = 0x10				;  Device Capability descriptor
+                           000021    31 	CY_FX_USB_HID_DESCR = 0x21					;  HID descriptor
+                           000022    32 	CY_FX_USB_REPORT_DESCR = 0x22				;  Report descriptor
+                           000030    33 	CY_FX_SS_EP_COMPN_DESCR = 0x30				;  Endpoint companion descriptor
+                                     34 
+                                     35 	;---------------------------------------------------
+                                     36 	;  EP types
+                                     37 	;---------------------------------------------------
+                           000000    38 	CY_FX_USB_EP_CONTROL = 0					;  Control Endpoint Type
+                           000001    39 	CY_FX_USB_EP_ISO = 1						;  Isochronous Endpoint Type
+                           000002    40 	CY_FX_USB_EP_BULK = 2						;  Bulk Endpoint Type
+                           000003    41 	CY_FX_USB_EP_INTR = 3						;  Interrupt Endpoint Type
+                           000082    42 	CY_FX_EP_BULK_VIDEO = 0x82					;  ISOC endpoint for data streaming
+                           00000B    43 	CY_FX_INTF_ASSN_DSCR_TYPE = 0x0B			;  IAD type
+                           00000D    44 	CY_FX_VS_COLORFORMAT = 0x0D					;  color format
+                           000081    45 	CY_FX_EP_CONTROL_STATUS = 0x81				;  need to setup EP1 as interrupt ?? TBD
+                                     46 
+                                     47 	;---------------------------------------------------
+                                     48 	.module DEV_DSCR
+                                     49 	;---------------------------------------------------
+                                     50 	; These need to be in code memory.  If
+                                     51 	; they aren't you'll have to manually copy them somewhere
+                                     52 	; in code memory otherwise SUDPTRH:L don't work right
+                                     53 	;---------------------------------------------------
+                                     54 
+                                     55 	.globl	_dev_dscr_uvc ,_dev_qual_dscr_uvc, _fullspd_dscr_uvc, _highspd_dscr_uvc, _dev_strings, _string0, _string1,_string2
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 2.
+Hexadecimal [24-Bits]
+
+
+
+                                     56 	.globl	_dev_dscr_fwld ,_dev_qual_dscr_fwld, _fullspd_dscr_fwld, _highspd_dscr_fwld
+                                     57 
+                                     58 	.area	DSCR_AREA	(CODE)
+      000000                         59 	.even
+                                     60 
+                                     61 
+                                     62 ;---------------------------------------------------
+                                     63 ;  Standard Device Descriptor
+                                     64 ;---------------------------------------------------
+      000000                         65 _dev_dscr_uvc:
+      000000 12                      66 		.db 0x12							;  Descriptor Size
+      000001 01                      67 		.db CY_FX_USB_DEVICE_DESCR			;  Device Descriptor Type
+      000002 00 02                   68 		.dw 0x0002							;  USB 2.0
+      000004 EF                      69 		.db 0xEF							;  Device Class
+      000005 02                      70 		.db 0x02							;  Device Sub-class
+      000006 01                      71 		.db 0x01							;  Device protocol
+      000007 40                      72 		.db 0x40							;  Maxpacket size for EP0 : 64 bytes
+      000008 B4 04                   73 		.dw 0xB404							;  Vendor ID  0x04B4
+      00000A 13 86                   74 		.dw 0x1386							;  Product ID  0x8613
+      00000C 00 00                   75 		.dw 0x0000							;  Device release number
+      00000E 01                      76 		.db 0x01							;  Manufacture string index
+      00000F 02                      77 		.db 0x02							;  Product string index
+      000010 03                      78 		.db 0x03							;  Serial number string index
+      000011 01                      79 		.db 0x01							;  Number of configurations
+      000012                         80 _dev_dscr_uvc_end:
+                                     81 
+                                     82 
+                                     83 ;---------------------------------------------------
+                                     84 ;  Standard Device Qualifier Descriptor
+                                     85 ;---------------------------------------------------
+      000012                         86 _dev_qual_dscr_uvc:
+      000012 0A                      87 		.db 0x0A							;  Descriptor Size
+      000013 06                      88 		.db CY_FX_USB_DEVQUAL_DESCR			;  Device Qualifier Descriptor Type
+      000014 00 02                   89 		.dw 0x0002							;  USB 2.0
+      000016 EF                      90 		.db 0xEF							;  Device Class
+      000017 02                      91 		.db 0x02							;  Device Sub-class
+      000018 01                      92 		.db 0x01							;  Device protocol
+      000019 40                      93 		.db 0x40							;  Maxpacket size for EP0 : 64 bytes
+      00001A 01                      94 		.db 0x01							;  Number of configurations
+      00001B 00                      95 		.db 0x00							;  Reserved
+      00001C                         96 _dev_qual_dscr_uvc_end:
+                                     97 
+                                     98 
+                                     99 ;---------------------------------------------------
+                                    100 ;  Standard Full Speed Configuration Descriptor
+                                    101 ;---------------------------------------------------
+      00001C                        102 _fullspd_dscr_uvc :
+                                    103 		;  Configuration Descriptor Type
+      00001C 09                     104 		.db 0x09							;  Descriptor Size
+      00001D 02                     105 		.db CY_FX_USB_CONFIG_DESCR			;  Configuration Descriptor Type
+      00001E 09 00                  106 		.dw 0x0900							;  Length of this descriptor and all sub descriptors
+      000020 00                     107 		.db 0x00							;  Number of interfaces
+      000021 01                     108 		.db 0x01							;  Configuration number
+      000022 00                     109 		.db 0x00							;  Configuration string index
+      000023 80                     110 		.db 0x80							;  Config characteristics - Bus powered
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 3.
+Hexadecimal [24-Bits]
+
+
+
+      000024 32                     111 		.db 0x32							;  Max power consumption of device (in 2mA unit) : 100mA
+      000025                        112 _fullspd_dscr_uvc_end:
+                                    113 
+      000025 00                     114 		.db 0x00							;  word align high speed
+                                    115 
+                                    116 ;---------------------------------------------------
+      000026                        117 _highspd_dscr_uvc:
+                                    118 ;---------------------------------------------------
+                                    119 
+                                    120 		;---------------------------------------------------
+                                    121 		;  Configuration Descriptor Type
+                                    122 		;---------------------------------------------------
+      000026 09                     123 		.db 0x09											;  Descriptor Size
+      000027 02                     124 		.db CY_FX_USB_CONFIG_DESCR							;  Configuration Descriptor Type
+      000028 04                     125 		.db	(_highspd_dscr_uvc_end-_highspd_dscr_uvc) % 256 ;  total length of config lsb
+      000029 02                     126 		.db	(_highspd_dscr_uvc_end-_highspd_dscr_uvc) / 256 ;  total length of config msb
+      00002A 02                     127 		.db 0x02											;  Number of interfaces
+      00002B 01                     128 		.db 0x01											;  Configuration number
+      00002C 00                     129 		.db 0x00											;  Configuration string index
+      00002D 80                     130 		.db 0x80											;  Config characteristics - Bus powered
+      00002E FA                     131 		.db 0xFA											;  Max power consumption of device (in 2mA units) : 500 mA
+                                    132 
+                                    133 		;---------------------------------------------------
+                                    134 		;  Interface Association Descriptor
+                                    135 		;---------------------------------------------------
+      00002F 08                     136 		.db 0x08							;  Descriptor Size
+      000030 0B                     137 		.db CY_FX_INTF_ASSN_DSCR_TYPE		;  Interface Association Descr Type: 11
+      000031 00                     138 		.db 0x00							;  I/f number of first VideoControl i/f
+      000032 02                     139 		.db 0x02							;  Number of Video i/f
+      000033 0E                     140 		.db 0x0E							;  CC_VIDEO : Video i/f class code
+      000034 03                     141 		.db 0x03							;  SC_VIDEO_INTERFACE_COLLECTION : Subclass code
+      000035 00                     142 		.db 0x00							;  Protocol : Not used
+      000036 00                     143 		.db 0x00							;  String desc index for interface
+                                    144 
+                                    145 		;---------------------------------------------------
+                                    146 		;  Standard Video Control Interface Descriptor
+                                    147 		;---------------------------------------------------
+      000037 09                     148 		.db 0x09							;  Descriptor size
+      000038 04                     149 		.db CY_FX_USB_INTRFC_DESCR			;  Interface Descriptor type
+      000039 00                     150 		.db 0x00							;  Interface number
+      00003A 00                     151 		.db 0x00							;  Alternate setting number
+      00003B 00                     152 		.db 0x00							;  Number of end points
+      00003C 0E                     153 		.db 0x0E							;  CC_VIDEO : Interface class
+      00003D 01                     154 		.db 0x01							;  CC_VIDEOCONTROL : Interface sub class
+      00003E 00                     155 		.db 0x00							;  Interface protocol code
+      00003F 02                     156 		.db 0x02							;  Interface descriptor string index
+                                    157 
+                                    158 		;---------------------------------------------------
+                                    159 		;  Class specific VC Interface Header Descriptor
+                                    160 		;---------------------------------------------------
+      000040 0D                     161 		.db 0x0D							;  Descriptor size
+      000041 24                     162 		.db 0x24							;  Class Specific I/f Header Descriptor type
+      000042 01                     163 		.db 0x01							;  Descriptor Sub type : VC_HEADER
+      000043 00 01                  164 		.dw 0x0001							;  Revision of class spec : 1.0
+      000045 50 00                  165 		.dw 0x5000							;  Total Size of class specific descriptors (till Output terminal)
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 4.
+Hexadecimal [24-Bits]
+
+
+
+      000047 00 6C                  166 		.dw 0x006C							;  Clock frequency : 48MHz(Deprecated)
+      000049 DC 02                  167 		.dw 0xDC02
+      00004B 01                     168 		.db 0x01							;  Number of streaming interfaces
+      00004C 01                     169 		.db 0x01							;  Video streaming I/f 1 belongs to VC i/f
+                                    170 
+                                    171 		;---------------------------------------------------
+                                    172 		;  Input (Camera) Terminal Descriptor
+                                    173 		;---------------------------------------------------
+      00004D 12                     174 		.db 0x12							;  Descriptor size
+      00004E 24                     175 		.db 0x24							;  Class specific interface desc type
+      00004F 02                     176 		.db 0x02							;  Input Terminal Descriptor type
+      000050 01                     177 		.db 0x01							;  ID of this terminal
+      000051 01 02                  178 		.dw 0x0102							;  Camera terminal type
+      000053 00                     179 		.db 0x00							;  No association terminal
+      000054 00                     180 		.db 0x00							;  String desc index : Not used
+      000055 00 00                  181 		.dw 0x0000							;  No optical zoom supported
+      000057 00 00                  182 		.dw 0x0000							;  No optical zoom supported
+      000059 00 00                  183 		.dw 0x0000							;  No optical zoom supported
+      00005B 03                     184 		.db 0x03							;  Size of controls field for this terminal : 3 bytes
+      00005C 00 00                  185 		.dw 0x0000							;  No controls supported
+      00005E 00                     186 		.db 0x00
+                                    187 
+                                    188 		;---------------------------------------------------
+                                    189 		;  Processing Unit Descriptor
+                                    190 		;---------------------------------------------------
+      00005F 0C                     191 		.db 0x0C							;  Descriptor size
+      000060 24                     192 		.db 0x24							;  Class specific interface desc type
+      000061 05                     193 		.db 0x05							;  Processing Unit Descriptor type
+      000062 02                     194 		.db 0x02							;  ID of this terminal
+      000063 01                     195 		.db 0x01							;  Source ID : 1 : Conencted to input terminal
+      000064 00 40                  196 		.dw 0x0040							;  Digital multiplier
+      000066 03                     197 		.db 0x03							;  Size of controls field for this terminal : 3 bytes
+      000067 00 00                  198 		.dw 0x0000							;  No controls supported
+      000069 00                     199 		.db 0x00
+      00006A 00                     200 		.db 0x00							;  String desc index : Not used
+                                    201 
+                                    202 		;---------------------------------------------------
+                                    203 		;  Extension Unit Descriptor
+                                    204 		;---------------------------------------------------
+      00006B 1C                     205 		.db 0x1C							;  Descriptor size
+      00006C 24                     206 		.db 0x24							;  Class specific interface desc type
+      00006D 06                     207 		.db 0x06							;  Extension Unit Descriptor type
+      00006E 03                     208 		.db 0x03							;  ID of this terminal
+      00006F DD 88                  209 		.dw 0xDD88							;  16 byte GUID
+      000071 0F 8A                  210 		.dw 0x0F8A
+      000073 1C BA                  211 		.dw 0x1CBA
+      000075 49 54                  212 		.dw 0x4954
+      000077 8A 25                  213 		.dw 0x8A25
+      000079 F7 87                  214 		.dw 0xF787
+      00007B 59 67                  215 		.dw 0x5967
+      00007D F0 F7                  216 		.dw 0xF0F7
+      00007F 0A                     217 		.db 0x0A							;  Number of controls in this terminal
+      000080 01                     218 		.db 0x01							;  Number of input pins in this terminal
+      000081 02                     219 		.db 0x02							;  Source ID : 2 : Connected to Proc Unit
+      000082 03                     220 		.db 0x03							;  Size of controls field for this terminal : 3 bytes
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 5.
+Hexadecimal [24-Bits]
+
+
+
+      000083 FF 03                  221 		.dw 0xFF03							;  No controls supported
+      000085 00                     222 		.db 0x00
+      000086 01                     223 		.db 0x01							;  String desc index : Not used
+                                    224 
+                                    225 		;---------------------------------------------------
+                                    226 		;  Output Terminal Descriptor
+                                    227 		;---------------------------------------------------
+      000087 09                     228 		.db 0x09							;  Descriptor size
+      000088 24                     229 		.db 0x24							;  Class specific interface desc type
+      000089 03                     230 		.db 0x03							;  Output Terminal Descriptor type
+      00008A 04                     231 		.db 0x04							;  ID of this terminal
+      00008B 01 01                  232 		.dw 0x0101							;  USB Streaming terminal type
+      00008D 00                     233 		.db 0x00							;  No association terminal
+      00008E 03                     234 		.db 0x03							;  Source ID : 3 : Connected to Extn Unit
+      00008F 00                     235 		.db 0x00							;  String desc index : Not used
+                                    236 
+                                    237 		;---------------------------------------------------
+                                    238 		;  Standard Video Streaming Interface Descriptor (Alternate Setting 0)
+                                    239 		;---------------------------------------------------
+      000090 09                     240 		.db 0x09							;  Descriptor size
+      000091 04                     241 		.db CY_FX_USB_INTRFC_DESCR			;  Interface Descriptor type
+      000092 01                     242 		.db 0x01							;  Interface number
+      000093 00                     243 		.db 0x00							;  Alternate setting number
+      000094 00                     244 		.db 0x00							;  Number of end points
+      000095 0E                     245 		.db 0x0E							;  Interface class : CC_VIDEO
+      000096 02                     246 		.db 0x02							;  Interface sub class : CC_VIDEOSTREAMING
+      000097 00                     247 		.db 0x00							;  Interface protocol code : Undefined
+      000098 00                     248 		.db 0x00							;  Interface descriptor string index
+                                    249 
+                                    250 		;---------------------------------------------------
+                                    251 		;  Class-specific Video Streaming Input Header Descriptor
+                                    252 		;---------------------------------------------------
+      000099 0E                     253 		.db 0x0E							;  Descriptor size
+      00009A 24                     254 		.db 0x24							;  Class-specific VS I/f Type
+      00009B 01                     255 		.db 0x01							;  Descriptotor Subtype : Input Header
+      00009C 01                     256 		.db 0x01							;  1 format desciptor follows
+      00009D 47 00                  257 		.dw 0x4700							;  Total size of Class specific VS descr
+      00009F 82                     258 		.db CY_FX_EP_BULK_VIDEO				;  EP address for BULK video data
+      0000A0 00                     259 		.db 0x00							;  No dynamic format change supported
+      0000A1 04                     260 		.db 0x04							;  Output terminal ID : 4
+      0000A2 00                     261 		.db 0x00							;  Still image capture method 1 supported
+      0000A3 00                     262 		.db 0x00							;  Hardware trigger NOT supported
+      0000A4 00                     263 		.db 0x00							;  Hardware to initiate still image capture NOT supported
+      0000A5 01                     264 		.db 0x01							;  Size of controls field : 1 byte
+      0000A6 00                     265 		.db 0x00							;  D2 : Compression quality supported
+                                    266 
+                                    267 		;---------------------------------------------------
+                                    268 		;  Class specific Uncompressed VS format descriptor
+                                    269 		;---------------------------------------------------
+      0000A7 1B                     270 		.db 0x1B							;  Descriptor size
+      0000A8 24                     271 		.db 0x24							;  Class-specific VS I/f Type
+      0000A9 04                     272 		.db 0x04							;  Subtype : uncompressed format I/F
+      0000AA 01                     273 		.db 0x01							;  Format desciptor index
+      0000AB 0B                     274 		.db 0x0B							;  Number of frame descriptor followed
+      0000AC 59 55                  275 		.dw 0x5955							;  GUID used to identify streaming-encoding format: YUY2
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 6.
+Hexadecimal [24-Bits]
+
+
+
+      0000AE 59 32                  276 		.dw 0x5932
+      0000B0 00 00                  277 		.dw 0x0000
+      0000B2 10 00                  278 		.dw 0x1000
+      0000B4 80 00                  279 		.dw 0x8000
+      0000B6 00 AA                  280 		.dw 0x00AA
+      0000B8 00 38                  281 		.dw 0x0038
+      0000BA 9B 71                  282 		.dw 0x9B71
+      0000BC 10                     283 		.db 0x10							;  Number of bits per pixel
+      0000BD 01                     284 		.db 0x01							;  Optimum Frame Index for this stream: 1
+      0000BE 00                     285 		.db 0x00							;  X dimension of the picture aspect ratio; Non-interlaced
+      0000BF 00                     286 		.db 0x00							;  Y dimension of the pictuer aspect ratio: Non-interlaced
+      0000C0 00                     287 		.db 0x00							;  Interlace Flags: Progressive scanning  no interlace
+      0000C1 00                     288 		.db 0x00							;  duplication of the video stream restriction: 0 - no restriction
+                                    289 
+                                    290 		;---------------------------------------------------
+                                    291 		;  Class specific Uncompressed VS frame descriptor
+                                    292 		;  Index 1: 320x240 raw mode 6 quad (960*480)
+                                    293 		;---------------------------------------------------
+      0000C2 1E                     294 		.db 0x1E							;  Descriptor size
+      0000C3 24                     295 		.db 0x24							;  Descriptor type
+      0000C4 05                     296 		.db 0x05							;  Subtype: uncompressed frame I/F
+      0000C5 01                     297 		.db 0x01							;  Frame Descriptor Index
+      0000C6 00                     298 		.db 0x00							;  Still image capture method 1 supported  fixed frame rate
+      0000C7 C0 03                  299 		.dw 0xC003							;  Width in pixel
+      0000C9 E0 01                  300 		.dw 0xe001							;  Height in pixel
+      0000CB 00 00                  301 		.dw 0x0000							;  Min bit rate bits/s.
+      0000CD 65 04                  302 		.dw 0x6504
+      0000CF 00 00                  303 		.dw 0x0000							;  Max bit rate bits/s.
+      0000D1 65 04                  304 		.dw 0x6504
+      0000D3 00 10                  305 		.dw 0x0010							;  Maximum video or still frame size in bytes(Deprecated)
+      0000D5 0E 00                  306 		.dw 0x0E00
+      0000D7 D0 12                  307 		.dw 0xD012
+      0000D9 13 00                  308 		.dw 0x1300
+      0000DB 01                     309 		.db 0x01
+      0000DC D0 12                  310 		.dw 0xD012							;  125.00 ms == 8 fps
+      0000DE 13 00                  311 		.dw 0x1300
+                                    312 
+                                    313 		;---------------------------------------------------
+                                    314 		;  Class specific Uncompressed VS frame descriptor
+                                    315 		;  Index 2: 320x240 x4 Bytes-per-pixel (Default)
+                                    316 		;---------------------------------------------------
+      0000E0 1E                     317 		.db 0x1E							;  Descriptor size
+      0000E1 24                     318 		.db 0x24							;  Descriptor type
+      0000E2 05                     319 		.db 0x05							;  Subtype: uncompressed frame I/F
+      0000E3 02                     320 		.db 0x02							;  Frame Descriptor Index
+      0000E4 00                     321 		.db 0x00							;  Still image capture method 1 supported  fixed frame rate
+      0000E5 80 02                  322 		.dw 0x8002							;  Width in pixel
+      0000E7 F0 00                  323 		.dw 0xf000							;  Height in pixel
+      0000E9 00 80                  324 		.dw 0x0080							;  Min bit rate bits/s.
+      0000EB A9 03                  325 		.dw 0xA903
+      0000ED 00 80                  326 		.dw 0x0080							;  Max bit rate bits/s.
+      0000EF A9 03                  327 		.dw 0xA903
+      0000F1 00 B0                  328 		.dw 0x00B0							;  Maximum video or still frame size in bytes(Deprecated)
+      0000F3 04 00                  329 		.dw 0x0400
+      0000F5 80 1A                  330 		.dw 0x801A
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 7.
+Hexadecimal [24-Bits]
+
+
+
+      0000F7 06 00                  331 		.dw 0x0600
+      0000F9 01                     332 		.db 0x01
+      0000FA 80 1A                  333 		.dw 0x801A							;  40.000 ms == 25 fps
+      0000FC 06 00                  334 		.dw 0x0600
+                                    335 
+                                    336 		;---------------------------------------------------
+                                    337 		;  Class specific Uncompressed VS frame descriptor
+                                    338 		;  Index 3: 320x240 raw mode 4 quad (640x480)
+                                    339 		;---------------------------------------------------
+      0000FE 1E                     340 		.db 0x1E							;  Descriptor size
+      0000FF 24                     341 		.db 0x24							;  Descriptor type
+      000100 05                     342 		.db 0x05							;  Subtype: uncompressed frame I/F
+      000101 03                     343 		.db 0x03							;  Frame Descriptor Index
+      000102 00                     344 		.db 0x00							;  Still image capture method 1 supported  fixed frame rate
+      000103 80 02                  345 		.dw 0x8002							;  Width in pixel
+      000105 E0 01                  346 		.dw 0xE001							;  Height in pixel
+      000107 00 80                  347 		.dw 0x0080							;  Min bit rate bits/s.
+      000109 A9 03                  348 		.dw 0xA903
+      00010B 00 80                  349 		.dw 0x0080							;  Max bit rate bits/s.
+      00010D A9 03                  350 		.dw 0xA903
+      00010F 00 60                  351 		.dw 0x0060							;  Maximum video or still frame size in bytes(Deprecated)
+      000111 09 00                  352 		.dw 0x0900
+      000113 00 35                  353 		.dw 0x0035
+      000115 0C 00                  354 		.dw 0x0C00
+      000117 01                     355 		.db 0x01
+      000118 00 35                  356 		.dw 0x0035							;  80.000 ms == 12.5 fps
+      00011A 0C 00                  357 		.dw 0x0C00
+                                    358 
+                                    359 		;---------------------------------------------------
+                                    360 		;  Class specific Uncompressed VS frame descriptor
+                                    361 		;  Index 4: 320x120 normal, or 320x240 2 bytes mode
+                                    362 		;---------------------------------------------------
+      00011C 22                     363 		.db 0x22							;  Descriptor size
+      00011D 24                     364 		.db 0x24							;  Descriptor type
+      00011E 05                     365 		.db 0x05							;  Subtype: uncompressed frame I/F
+      00011F 04                     366 		.db 0x04							;  Frame Descriptor Index
+      000120 00                     367 		.db 0x00							;  Still image capture method 1 supported  fixed frame rate
+      000121 40 01                  368 		.dw 0x4001							;  Width in pixel
+      000123 F0 00                  369 		.dw 0xF000							;  Height in pixel
+      000125 00 80                  370 		.dw 0x0080							;  Min bit rate bits/s.
+      000127 32 02                  371 		.dw 0x3202
+      000129 00 80                  372 		.dw 0x0080							;  Max bit rate bits/s.
+      00012B A9 03                  373 		.dw 0xA903
+      00012D 00 58                  374 		.dw 0x0058							;  Maximum video or still frame size in bytes(Deprecated)
+      00012F 02 00                  375 		.dw 0x0200
+      000131 15 16                  376 		.dw 0x1516
+      000133 05 00                  377 		.dw 0x0500
+      000135 02                     378 		.db 0x02
+      000136 40 0D                  379 		.dw 0x400D							;  20.000 ms == 50 fps
+      000138 03 00                  380 		.dw 0x0300
+      00013A 15 16                  381 		.dw 0x1516							;  33.333 ms == 30 fps
+      00013C 05 00                  382 		.dw 0x0500
+                                    383 
+                                    384 		;---------------------------------------------------
+                                    385 		;  Class specific Uncompressed VS frame descriptor
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 8.
+Hexadecimal [24-Bits]
+
+
+
+                                    386 		;  Index 5: 160x120 QQVGA mode (320x120)
+                                    387 		;---------------------------------------------------
+      00013E 22                     388 		.db 0x22							;  Descriptor size
+      00013F 24                     389 		.db 0x24							;  Descriptor type
+      000140 05                     390 		.db 0x05							;  Subtype: uncompressed frame I/F
+      000141 05                     391 		.db 0x05							;  Frame Descriptor Index
+      000142 00                     392 		.db 0x00							;  Still image capture method 1 supported  fixed frame rate
+      000143 40 01                  393 		.dw 0x4001							;  Width in pixel
+      000145 78 00                  394 		.dw 0x7800							;  Height in pixel
+      000147 00 40                  395 		.dw 0x0040							;  Min bit rate bits/s.
+      000149 19 01                  396 		.dw 0x1901
+      00014B 00 80                  397 		.dw 0x0080							;  Max bit rate bits/s.
+      00014D A9 03                  398 		.dw 0xA903
+      00014F 00 2C                  399 		.dw 0x002C							;  Maximum video or still frame size in bytes(Deprecated)
+      000151 01 00                  400 		.dw 0x0100
+      000153 15 16                  401 		.dw 0x1516
+      000155 05 00                  402 		.dw 0x0500
+      000157 02                     403 		.db 0x02
+      000158 A0 86                  404 		.dw 0xA086							;  10.000 ms == 100 fps
+      00015A 01 00                  405 		.dw 0x0100
+      00015C 15 16                  406 		.dw 0x1516							;  33.333 ms == 30 fps
+      00015E 05 00                  407 		.dw 0x0500
+                                    408 
+                                    409 		;---------------------------------------------------
+                                    410 		;  Class specific Uncompressed VS frame descriptor
+                                    411 		;  Index 6: 160x60 4 Bytes mode(160x120)
+                                    412 		;---------------------------------------------------
+      000160 1E                     413 		.db 0x1E							;  Descriptor size
+      000161 24                     414 		.db 0x24							;  Descriptor type
+      000162 05                     415 		.db 0x05							;  Subtype: uncompressed frame I/F
+      000163 06                     416 		.db 0x06							;  Frame Descriptor Index
+      000164 00                     417 		.db 0x00							;  Still image capture method 1 supported  fixed frame rate
+      000165 A0 00                  418 		.dw 0xA000							;  Width in pixel
+      000167 78 00                  419 		.dw 0x7800							;  Height in pixel
+      000169 00 A0                  420 		.dw 0x00A0							;  Min bit rate bits/s.
+      00016B 8C 00                  421 		.dw 0x8C00
+      00016D 00 A0                  422 		.dw 0x00A0							;  Max bit rate bits/s.
+      00016F 8C 00                  423 		.dw 0x8C00
+      000171 00 96                  424 		.dw 0x0096							;  Maximum video or still frame size in bytes(Deprecated)
+      000173 00 00                  425 		.dw 0x0000
+      000175 15 16                  426 		.dw 0x1516
+      000177 05 00                  427 		.dw 0x0500
+      000179 01                     428 		.db 0x01
+      00017A 15 16                  429 		.dw 0x1516							;  33.333 ms == 30 fps
+      00017C 05 00                  430 		.dw 0x0500
+                                    431 
+                                    432 		;---------------------------------------------------
+                                    433 		;  Class specific Uncompressed VS frame descriptor
+                                    434 		;  Index 7: 80x60 (QQQVGA 4Bytes mode) (160x60)
+                                    435 		;---------------------------------------------------
+      00017E 1E                     436 		.db 0x1E							;  Descriptor size
+      00017F 24                     437 		.db 0x24							;  Descriptor type
+      000180 05                     438 		.db 0x05							;  Subtype: uncompressed frame I/F
+      000181 07                     439 		.db 0x07							;  Frame Descriptor Index
+      000182 00                     440 		.db 0x00							;  Still image capture method 1 supported  fixed frame rate
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 9.
+Hexadecimal [24-Bits]
+
+
+
+      000183 A0 00                  441 		.dw 0xA000							;  Width in pixel
+      000185 3C 00                  442 		.dw 0x3C00							;  Height in pixel
+      000187 00 50                  443 		.dw 0x0050							;  Min bit rate bits/s.
+      000189 46 00                  444 		.dw 0x4600
+      00018B 00 50                  445 		.dw 0x0050							;  Max bit rate bits/s.
+      00018D 46 00                  446 		.dw 0x4600
+      00018F 00 4B                  447 		.dw 0x004B							;  Maximum video or still frame size in bytes(Deprecated)
+      000191 00 00                  448 		.dw 0x0000
+      000193 15 16                  449 		.dw 0x1516
+      000195 05 00                  450 		.dw 0x0500
+      000197 01                     451 		.db 0x01
+      000198 20 4E                  452 		.dw 0x204E							;  02.0000 == 500 fps; 33.333 ms == 30 fps
+      00019A 00 00                  453 		.dw 0x0000
+                                    454 
+                                    455 		;---------------------------------------------------
+                                    456 		;  Class specific Uncompressed VS frame descriptor
+                                    457 		;  Index 8: 80x30 (80x60)
+                                    458 		;---------------------------------------------------
+      00019C 1E                     459 		.db 0x1E							;  Descriptor size
+      00019D 24                     460 		.db 0x24							;  Descriptor type
+      00019E 05                     461 		.db 0x05							;  Subtype: uncompressed frame I/F
+      00019F 08                     462 		.db 0x08							;  Frame Descriptor Index
+      0001A0 00                     463 		.db 0x00							;  Still image capture method 1 supported  fixed frame rate
+      0001A1 50 00                  464 		.dw 0x5000							;  Width in pixel
+      0001A3 3C 00                  465 		.dw 0x3C00							;  Height in pixel
+      0001A5 00 28                  466 		.dw 0x0028							;  Min bit rate bits/s.
+      0001A7 23 00                  467 		.dw 0x2300
+      0001A9 00 28                  468 		.dw 0x0028							;  Max bit rate bits/s.
+      0001AB 23 00                  469 		.dw 0x2300
+      0001AD 80 25                  470 		.dw 0x8025							;  Maximum video or still frame size in bytes(Deprecated)
+      0001AF 00 00                  471 		.dw 0x0000
+      0001B1 15 16                  472 		.dw 0x1516
+      0001B3 05 00                  473 		.dw 0x0500
+      0001B5 01                     474 		.db 0x01
+      0001B6 15 16                  475 		.dw 0x1516							;  33.333 ms == 30 fps
+      0001B8 05 00                  476 		.dw 0x0500
+                                    477 
+                                    478 		;---------------------------------------------------
+                                    479 		;  Class specific Uncompressed VS frame descriptor
+                                    480 		;  Index 9: 40x30 (80x30)
+                                    481 		;---------------------------------------------------
+      0001BA 1E                     482 		.db 0x1E							;  Descriptor size
+      0001BB 24                     483 		.db 0x24							;  Descriptor type
+      0001BC 05                     484 		.db 0x05							;  Subtype: uncompressed frame I/F
+      0001BD 09                     485 		.db 0x09							;  Frame Descriptor Index
+      0001BE 00                     486 		.db 0x00							;  Still image capture method 1 supported  fixed frame rate
+      0001BF 50 00                  487 		.dw 0x5000							;  Width in pixel
+      0001C1 1E 00                  488 		.dw 0x1e00							;  Height in pixel
+      0001C3 00 94                  489 		.dw 0x0094							;  Min bit rate bits/s.
+      0001C5 11 00                  490 		.dw 0x1100
+      0001C7 00 94                  491 		.dw 0x0094							;  Max bit rate bits/s.
+      0001C9 11 00                  492 		.dw 0x1100
+      0001CB C0 12                  493 		.dw 0xC012							;  Maximum video or still frame size in bytes(Deprecated)
+      0001CD 00 00                  494 		.dw 0x0000
+      0001CF 15 16                  495 		.dw 0x1516
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 10.
+Hexadecimal [24-Bits]
+
+
+
+      0001D1 05 00                  496 		.dw 0x0500
+      0001D3 01                     497 		.db 0x01
+      0001D4 15 16                  498 		.dw 0x1516							;  33.333 ms == 30 fps
+      0001D6 05 00                  499 		.dw 0x0500
+                                    500 
+                                    501 		;---------------------------------------------------
+                                    502 		;  Class specific Uncompressed VS frame descriptor
+                                    503 		;  Index 10: 40x15 (40x30)
+                                    504 		;---------------------------------------------------
+      0001D8 1E                     505 		.db 0x1E							;  Descriptor size
+      0001D9 24                     506 		.db 0x24							;  Descriptor type
+      0001DA 05                     507 		.db 0x05							;  Subtype: uncompressed frame I/F
+      0001DB 0A                     508 		.db 0x0A							;  Frame Descriptor Index
+      0001DC 00                     509 		.db 0x00							;  Still image capture method 1 supported  fixed frame rate
+      0001DD 28 00                  510 		.dw 0x2800							;  Width in pixel
+      0001DF 1E 00                  511 		.dw 0x1E00							;  Height in pixel
+      0001E1 00 CA                  512 		.dw 0x00CA							;  Min bit rate bits/s.
+      0001E3 08 00                  513 		.dw 0x0800
+      0001E5 00 CA                  514 		.dw 0x00CA							;  Max bit rate bits/s.
+      0001E7 08 00                  515 		.dw 0x0800
+      0001E9 60 09                  516 		.dw 0x6009							;  Maximum video or still frame size in bytes(Deprecated)
+      0001EB 00 00                  517 		.dw 0x0000
+      0001ED 15 16                  518 		.dw 0x1516
+      0001EF 05 00                  519 		.dw 0x0500
+      0001F1 01                     520 		.db 0x01
+      0001F2 15 16                  521 		.dw 0x1516							;  33.333 ms == 30 fps
+      0001F4 05 00                  522 		.dw 0x0500
+                                    523 
+                                    524 		;---------------------------------------------------
+                                    525 		;  Class specific Uncompressed VS frame descriptor
+                                    526 		;  Index 11: 320x240x4 + 96 (396*388)
+                                    527 		;---------------------------------------------------
+      0001F6 1E                     528 		.db 0x1E							;  Descriptor size
+      0001F7 24                     529 		.db 0x24							;  Descriptor type
+      0001F8 05                     530 		.db 0x05							;  Subtype: uncompressed frame I/F
+      0001F9 0B                     531 		.db 0x0B							;  Frame Descriptor Index
+      0001FA 00                     532 		.db 0x00							;  Still image capture method 1 supported  fixed frame rate
+      0001FB 8C 01                  533 		.dw 0x8C01							;  Width in pixel
+      0001FD 84 01                  534 		.dw 0x8401							;  Height in pixel
+      0001FF 00 CA                  535 		.dw 0x00CA							;  Min bit rate bits/s.
+      000201 08 00                  536 		.dw 0x0800
+      000203 00 CA                  537 		.dw 0x00CA							;  Max bit rate bits/s.
+      000205 08 00                  538 		.dw 0x0800
+      000207 60 B0                  539 		.dw 0x60B0							;  Maximum video or still frame size in bytes(Deprecated)
+      000209 04 00                  540 		.dw 0x0400
+      00020B 80 1A                  541 		.dw 0x801A
+      00020D 06 00                  542 		.dw 0x0600
+      00020F 01                     543 		.db 0x01
+      000210 80 1A                  544 		.dw 0x801A							;  40.000 ms == 25 fps
+      000212 06 00                  545 		.dw 0x0600
+                                    546 
+                                    547 		;---------------------------------------------------
+                                    548 		;  Class specific Uncompressed VS color descriptor
+                                    549 		;---------------------------------------------------
+      000214 06                     550 		.db 0x06							;  size
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 11.
+Hexadecimal [24-Bits]
+
+
+
+      000215 24                     551 		.db 0x24							;  Class-specific VS I/f Type
+      000216 0D                     552 		.db CY_FX_VS_COLORFORMAT
+      000217 01                     553 		.db 0x01							;  RGB format
+      000218 01                     554 		.db 0x01
+      000219 04                     555 		.db 0x04
+                                    556 
+                                    557 		;---------------------------------------------------
+                                    558 		;  Standard Video Streaming Interface Descriptor (Alternate Setting 1)
+                                    559 		;---------------------------------------------------
+      00021A 09                     560 		.db 0x09							;  Descriptor size
+      00021B 04                     561 		.db CY_FX_USB_INTRFC_DESCR			;  Interface Descriptor type
+      00021C 01                     562 		.db 0x01							;  Interface number
+      00021D 01                     563 		.db 0x01							;  Alternate setting number
+      00021E 01                     564 		.db 0x01							;  Number of end points
+      00021F 0E                     565 		.db 0x0E							;  Interface class : CC_VIDEO
+      000220 02                     566 		.db 0x02							;  Interface sub class : CC_VIDEOSTREAMING
+      000221 00                     567 		.db 0x00							;  Interface protocol code : Undefined
+      000222 00                     568 		.db 0x00
+                                    569 
+                                    570 		;---------------------------------------------------
+                                    571 		;  Endpoint Descriptor for BULK Streaming Video Data
+                                    572 		;---------------------------------------------------
+      000223 07                     573 		.db 0x07							;  Descriptor size
+      000224 05                     574 		.db CY_FX_USB_ENDPNT_DESCR			;  Endpoint Descriptor Type
+      000225 82                     575 		.db CY_FX_EP_BULK_VIDEO				;  Endpoint address and description
+      000226 05                     576 		.db 0x05							;  BULK End point
+      000227 00 04                  577 		.dw 0x0004							;  EP MaxPcktSize: 2*1024B
+      000229 01                     578 		.db 0x01							;  Servicing interval for data transfers
+                                    579 
+                                    580 
+                                    581 ;---------------------------------------------------
+                                    582 ;  Interface descriptor string index
+                                    583 ;---------------------------------------------------
+                                    584 
+      00022A                        585 _highspd_dscr_uvc_end:
+                                    586 
+                                    587 
+      00022A                        588 _dev_strings:
+      00022A                        589 _string0:
+      00022A 04                     590 		.db 0x04							;  Descriptor Size
+      00022B 03                     591 		.db CY_FX_USB_STRING_DESCR			;  Device Descriptor Type
+      00022C 09 04                  592 		.dw 0x0904							;  Language ID supported
+      00022E                        593 _string0_end:
+                                    594 
+      00022E                        595 _string1:
+      00022E 06                     596 		.db 0x06							;  Descriptor Size
+      00022F 03                     597 		.db CY_FX_USB_STRING_DESCR			;  Device Descriptor Type
+      000230 54                     598 		.ascii 'T'
+      000231 00                     599 		.db 0x00
+      000232 49                     600 		.ascii 'I'
+      000233 00                     601 		.db 0x00
+      000234                        602 _string1_end:
+                                    603 
+      000234                        604 _string2:
+                                    605 		;.db 0x10							;  Descriptor Size
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 12.
+Hexadecimal [24-Bits]
+
+
+
+      000234 18                     606 		.db _string2_end - _string2
+      000235 03                     607 		.db CY_FX_USB_STRING_DESCR			;  Device Descriptor Type
+      000236 43                     608 		.ascii 'C'
+      000237 00                     609 		.db 0x00
+      000238 44                     610 		.ascii 'D'
+      000239 00                     611 		.db 0x00
+      00023A 4B                     612 		.ascii 'K'
+      00023B 00                     613 		.db 0x00
+      00023C 2D                     614 		.ascii '-'
+      00023D 00                     615 		.db 0x00
+      00023E 4F                     616 		.ascii 'O'
+      00023F 00                     617 		.db 0x00
+      000240 50                     618 		.ascii 'P'
+      000241 00                     619 		.db 0x00
+      000242 54                     620 		.ascii 'T'
+      000243 00                     621 		.db 0x00
+      000244 38                     622 		.ascii '8'
+      000245 00                     623 		.db 0x00
+      000246 32                     624 		.ascii '2'
+      000247 00                     625 		.db 0x00
+      000248 34                     626 		.ascii '4'
+      000249 00                     627 		.db 0x00
+      00024A 31                     628 		.ascii '1'
+      00024B 00                     629 		.db 0x00
+                                    630 
+      00024C                        631 _string2_end:
+                                    632 
+      00024C                        633 _serialnumber_0::
+      00024C                        634 _string3:
+      00024C 2E                     635 		.db _string3_end - _string3
+      00024D 03                     636 		.db	CY_FX_USB_STRING_DESCR
+      00024E 53                     637 		.ascii 'S'
+      00024F 00                     638 		.db 0x00
+      000250 65                     639 		.ascii 'e'
+      000251 00                     640 		.db 0x00
+      000252 72                     641 		.ascii 'r'
+      000253 00                     642 		.db 0x00
+      000254 69                     643 		.ascii 'i'
+      000255 00                     644 		.db 0x00
+      000256 61                     645 		.ascii 'a'
+      000257 00                     646 		.db 0x00
+      000258 6C                     647 		.ascii 'l'
+      000259 00                     648 		.db 0x00
+      00025A 5F                     649 		.ascii '_'
+      00025B 00                     650 		.db 0x00
+      00025C 4E                     651 		.ascii 'N'
+      00025D 00                     652 		.db 0x00
+      00025E 6F                     653 		.ascii 'o'
+      00025F 00                     654 		.db 0x00
+      000260 2E                     655 		.ascii '.'
+      000261 00                     656 		.db 0x00
+      000262 5F                     657 		.ascii '_'
+      000263 00                     658 		.db 0x00
+      000264 50                     659 		.ascii 'P'
+      000265 00                     660 		.db 0x00
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 13.
+Hexadecimal [24-Bits]
+
+
+
+      000266 6C                     661 		.ascii 'l'
+      000267 00                     662 		.db 0x00
+      000268 61                     663 		.ascii 'a'
+      000269 00                     664 		.db 0x00
+      00026A 63                     665 		.ascii 'c'
+      00026B 00                     666 		.db 0x00
+      00026C 65                     667 		.ascii 'e'
+      00026D 00                     668 		.db 0x00
+      00026E 68                     669 		.ascii 'h'
+      00026F 00                     670 		.db 0x00
+      000270 6F                     671 		.ascii 'o'
+      000271 00                     672 		.db 0x00
+      000272 6C                     673 		.ascii 'l'
+      000273 00                     674 		.db 0x00
+      000274 64                     675 		.ascii 'd'
+      000275 00                     676 		.db 0x00
+      000276 65                     677 		.ascii 'e'
+      000277 00                     678 		.db 0x00
+      000278 72                     679 		.ascii 'r'
+      000279 00                     680 		.db 0x00
+                                    681 		
+      00027A                        682 _string3_end:
+                                    683 		; Placeholders for a longer serial number
+      00027A 00 00                  684 		.dw 0x0000
+      00027C 00 00                  685 		.dw 0x0000
+      00027E 00 00                  686 		.dw 0x0000
+      000280 00 00                  687 		.dw 0x0000
+      000282 00 00                  688 		.dw 0x0000
+      000284 00 00                  689 		.dw 0x0000
+      000286 00 00                  690 		.dw 0x0000
+      000288 00 00                  691 		.dw 0x0000
+      00028A 00 00                  692 		.dw 0x0000
+      00028C 00 00                  693 		.dw 0x0000
+                                    694 
+      00028E                        695 _dev_strings_end:
+                                    696 
+      00028E 00 00                  697 .dw 0x0000				;  just in case someone passes an index higher than the end to the firmware
+                                    698 
+                                    699 ;---------------------------------------------------
+                                    700 ; ------------- second set of descriptors , Firmware load
+                                    701 ;---------------------------------------------------
+                                    702 
+                                    703 
+                                    704 
+                                    705 
+                                    706 
+                                    707 ;---------------------------------------------------
+                                    708 ;  Standard Device Descriptor
+                                    709 ;---------------------------------------------------
+      000290                        710 _dev_dscr_fwld:
+      000290 12                     711 	.db	dev_dscr_fwld_end-_dev_dscr_fwld	;  len
+      000291 01                     712 	.db	CY_FX_USB_DEVICE_DESCR				;  type
+      000292 00 02                  713 	.dw	0x0002								;  usb 2.0
+      000294 00                     714 	.db	0x00  								;  class (vendor specific)
+      000295 00                     715 	.db	0x00								;  subclass (vendor specific)
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 14.
+Hexadecimal [24-Bits]
+
+
+
+      000296 00                     716 	.db	0x00								;  protocol (vendor specific)
+      000297 40                     717 	.db	64									;  packet size (ep0)
+      000298 B4 04                  718 	.dw	0xB404								;  vendor id 0x04B4
+      00029A 13 86                  719 	.dw	0x1386								;  product id 0x8613
+      00029C 01 00                  720 	.dw	0x0100								;  version id
+      00029E 01                     721 	.db	1									;  manufacturure str idx
+      00029F 02                     722 	.db	2									;  product str idx
+      0002A0 03                     723 	.db	3									;  serial str idx
+      0002A1 01                     724 	.db	1									;  n configurations
+      0002A2                        725 dev_dscr_fwld_end:
+                                    726 
+                                    727 
+                                    728 ;---------------------------------------------------
+                                    729 ;  Standard Device Qualifier Descriptor
+                                    730 ;---------------------------------------------------
+      0002A2                        731 _dev_qual_dscr_fwld:
+      0002A2 0A                     732 	.db	dev_qual_dscr_fwld_end-_dev_qual_dscr_fwld
+      0002A3 06                     733 	.db	CY_FX_USB_DEVQUAL_DESCR
+      0002A4 00 02                  734 	.dw	0x0002								;  usb 2.0
+      0002A6 00                     735 	.db	0x00
+      0002A7 00                     736 	.db	0x00
+      0002A8 00                     737 	.db	0x00
+      0002A9 40                     738 	.db	64									;  max packet
+      0002AA 01                     739 	.db	1									;  n configs
+      0002AB 00                     740 	.db	0									;  extra reserved byte
+      0002AC                        741 dev_qual_dscr_fwld_end:
+                                    742 
+                                    743 
+                                    744 ;---------------------------------------------------
+                                    745 ;  High Speed Descriptor
+                                    746 ;---------------------------------------------------
+      0002AC                        747 _highspd_dscr_fwld:
+      0002AC 09                     748 	.db	highspd_dscr_fwld_end-_highspd_dscr_fwld				;  dscr len
+      0002AD 02                     749 	.db	CY_FX_USB_CONFIG_DESCR
+      0002AE 19                     750 	.db	(highspd_dscr_fwld_real_end-_highspd_dscr_fwld) % 256 	;  total length of config lsb
+      0002AF 00                     751 	.db	(highspd_dscr_fwld_real_end-_highspd_dscr_fwld) / 256 	;  total length of config msb
+      0002B0 01                     752 	.db	1														;  n interfaces
+      0002B1 01                     753 	.db	1														;  config number
+      0002B2 00                     754 	.db	0														;  config string
+      0002B3 80                     755 	.db	0x80													;  attrs = bus powered, no wakeup
+      0002B4 32                     756 	.db	0x32													;  max power = 100ma
+      0002B5                        757 highspd_dscr_fwld_end:
+                                    758 
+                                    759 ;---------------------------------------------------
+                                    760 ;  Interface Descriptor
+                                    761 ;---------------------------------------------------
+      0002B5 09                     762 	.db	0x09
+      0002B6 04                     763 	.db	CY_FX_USB_INTRFC_DESCR
+      0002B7 00                     764 	.db	0					;  index
+      0002B8 00                     765 	.db	0					;  alt setting idx
+      0002B9 01                     766 	.db	1					;  n endpoints
+      0002BA 00                     767 	.db	0x00				;  class
+      0002BB 00                     768 	.db	0x00
+      0002BC 00                     769 	.db	0x00
+      0002BD 02                     770 	.db	2					;  string index
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 15.
+Hexadecimal [24-Bits]
+
+
+
+                                    771 
+                                    772 ; endpoint 6 out
+      0002BE 07                     773 	.db	0x07
+      0002BF 05                     774 	.db	CY_FX_USB_ENDPNT_DESCR
+      0002C0 82                     775 	.db	0x82				;  ep6 dir=in and address
+      0002C1 02                     776 	.db	CY_FX_USB_EP_BULK	;  type
+      0002C2 00                     777 	.db	0x00				;  max packet LSB
+      0002C3 02                     778 	.db	0x02				;  max packet size=512 bytes
+      0002C4 00                     779 	.db	0x00				;  polling interval
+                                    780 
+      0002C5                        781 highspd_dscr_fwld_real_end:
+                                    782 
+      0002C6                        783 	.even
+                                    784 
+                                    785 ;---------------------------------------------------
+                                    786 ;  Full Speed Descriptor
+                                    787 ;---------------------------------------------------
+      0002C6                        788 _fullspd_dscr_fwld:
+      0002C6 09                     789 	.db	fullspd_dscr_fwld_end-_fullspd_dscr_fwld				;  dscr len
+      0002C7 02                     790 	.db	CY_FX_USB_CONFIG_DESCR
+      0002C8 19                     791 	.db	(fullspd_dscr_fwld_real_end-_fullspd_dscr_fwld) % 256	;  total length of config lsb
+      0002C9 00                     792 	.db	(fullspd_dscr_fwld_real_end-_fullspd_dscr_fwld) / 256	;  total length of config msb
+      0002CA 01                     793 	.db	1								 						;  n interfaces
+      0002CB 01                     794 	.db	1								 						;  config number
+      0002CC 00                     795 	.db	0								 						;  config string
+      0002CD 80                     796 	.db	0x80													;  attrs = bus powered, no wakeup
+      0002CE 32                     797 	.db	0x32													;  max power = 100ma
+      0002CF                        798 fullspd_dscr_fwld_end:
+                                    799 
+                                    800 
+                                    801 ;---------------------------------------------------
+                                    802 ;  Interface Descriptor
+                                    803 ;---------------------------------------------------
+      0002CF 09                     804 	.db	0x09
+      0002D0 04                     805 	.db	CY_FX_USB_INTRFC_DESCR
+      0002D1 00                     806 	.db	0					;  index
+      0002D2 00                     807 	.db	0					;  alt setting idx
+      0002D3 02                     808 	.db	2					;  n endpoints
+      0002D4 00                     809 	.db	0x00				;  class
+      0002D5 00                     810 	.db	0x00
+      0002D6 00                     811 	.db	0x00
+      0002D7 02                     812 	.db	2					;  string index
+                                    813 
+                                    814 ; endpoint 6 out
+      0002D8 07                     815 	.db	0x07
+      0002D9 05                     816 	.db	CY_FX_USB_ENDPNT_DESCR
+      0002DA 82                     817 	.db	0x82				;  ep6 dir=in and address
+      0002DB 02                     818 	.db	CY_FX_USB_EP_BULK	;  type
+      0002DC 00                     819 	.db	0x00				;  max packet LSB
+      0002DD 02                     820 	.db	0x02				;  max packet size=512 bytes
+      0002DE 00                     821 	.db	0x00				;  polling interval
+                                    822 
+      0002DF                        823 fullspd_dscr_fwld_real_end:
+                                    824 
+      0002E0                        825 .even
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 16.
+Hexadecimal [24-Bits]
+
+
+
+                                    826 
+      0002E0 00 00                  827 	.dw 0x0000				;  just in case someone passes an index higher than the end to the firmware
+                                    828 

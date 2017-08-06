@@ -63,15 +63,12 @@
 BUILD		= release
 
 #SHELL
-SHELL=C:/Windows/System32/cmd.exe
+#SHELL=C:/Windows/System32/cmd.exe
 
 #---------------------------------------------------------
 #  	Project Directories - modify as required
 #---------------------------------------------------------
-FX2_DIR		:= D:\Code\OPT8241-FX2-reference-FW
-PROJ_DIR 	:= $(FX2_DIR)/examples/opt8241-reference-fw
-FX2_INC_DIR 	:= $(FX2_DIR)/include
-INCLUDES 	:= -I $(FX2_INC_DIR) -I $(PROJ_DIR)
+INCLUDES 	:= -I$(FX2_INC_DIR) -I$(PROJ_DIR)
 OUT_DIR 	:= $(PROJ_DIR)/$(BUILD)
 OUTPUT		:= fx2_main
 LIBS 		:= $(FX2_DIR)/lib/fx2.lib
@@ -102,7 +99,7 @@ AS_MODULES 	:= 						\
 #---------------------------------------------------------
 #  	FX2 Build Tools	
 #---------------------------------------------------------
-AS		:= asx8051
+AS		:= sdas8051 
 CC 		:= sdcc
 LD		:= sdcc -l
 AR		:= sdcclib
