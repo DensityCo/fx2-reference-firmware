@@ -104,7 +104,6 @@ CC 		:= sdcc
 LD		:= sdcc -l
 AR		:= sdcclib
 PACKIHX		:= packihx
-HEX2BIX		:= hex2bix 
 DOXYGEN		:= doxygen
 
 #---------------------------------------------------------
@@ -154,13 +153,13 @@ $(OUT_DIR)/$(OUTPUT).hex : $(OUT_DIR)/$(OUTPUT).ihx
 	$(PACKIHX) $(OUT_DIR)/$(OUTPUT).ihx > $(OUT_DIR)/$(OUTPUT).hex
 
 $(OUT_DIR)/$(OUTPUT).iic : $(OUT_DIR)/$(OUTPUT).hex
-	$(HEX2BIX) -m 0x8000 -i -c 0x00 -f 0xC2 -o $(OUT_DIR)\$(OUTPUT).iic $(OUT_DIR)\$(OUTPUT).hex
+	$(HEX2BIX) -M 0x8000 -I -C 0x00 -F 0xC2 -O $(OUT_DIR)/$(OUTPUT).iic $(OUT_DIR)/$(OUTPUT).hex
 
-%.rel : %.c
-	$(CC) $(CCFLAGS) -o $@ $<	
+#%.rel : %.c
+#	$(CC) $(CCFLAGS) -o $@ $<	
 
-%.rel : %.a51
-	$(AS) $(ASFLAGS) $<
+#%.rel : %.a51
+#	$(AS) $(ASFLAGS) $<
 
 #---------------------------------------------------------
 #  	Clean Up 
