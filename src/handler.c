@@ -49,6 +49,8 @@
 
 #define __HANDLER_C__
 
+#include <stdint.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <fx2regs.h>
 #include <fx2macros.h>
@@ -62,15 +64,15 @@
 //#include <fx2timer.h>
 #include <gpif_fifowrite_ctl2_data.h>
 #include <pmic_reg.h>
-#include <main.h>
 
 // value (low byte) = ep
 #define VC_EPSTAT 0xB1
-BYTE alt_ifc_if1 = 0;
+//#define SYNCDELAY() SYNCDELAY4
+uint8_t alt_ifc_if1 = 0;
 
-const char xdata LUT_AUTOINLENL[4] = {0xE0, 0xD0, 0x2C,0x00};
-const char xdata LUT_AUTOINLENH[4] = {0x01, 0x02, 0x03,0x04};
-BYTE bConfigurationValue;
+const char __xdata LUT_AUTOINLENL[4] = {0xE0, 0xD0, 0x2C,0x00};
+const char __xdata LUT_AUTOINLENH[4] = {0x01, 0x02, 0x03,0x04};
+uint8_t bConfigurationValue;
 
 /*!
  *=============================================================================
@@ -82,13 +84,13 @@ BYTE bConfigurationValue;
  *=============================================================================
  */
 // this firmware only supports 0,0
-BOOL handle_get_interface(BYTE ifc, BYTE* alt_ifc)
+bool handle_get_interface(uint8_t ifc, uint8_t* alt_ifc)
 {
 	if (ifc == 0)
 		*alt_ifc = 0;
 	if (ifc == 1)
 		*alt_ifc = alt_ifc_if1;
-	return TRUE;
+	return true;
 }
 
 /*!
@@ -100,12 +102,15 @@ BOOL handle_get_interface(BYTE ifc, BYTE* alt_ifc)
  *
  *=============================================================================
  */
-BOOL handle_set_interface(BYTE ifc, BYTE alt_ifc)
+bool handle_set_interface(uint8_t ifc, uint8_t alt_ifc)
 {
+//TODO: FIX SYNCDELAY undefined SYMBOL
+#if 0
 
-	EP2AUTOINLENL = LUT_AUTOINLENL[alt_ifc] ;
+	EP2AUTOINLENL = LUT_AUTOINLENL[alt_ifc];
 	EP2AUTOINLENH = LUT_AUTOINLENH [alt_ifc];
 	alt_ifc_if1 = alt_ifc;
+
 	// SEE TRM 2.3.7
 	// reset toggles
 	RESETTOGGLE(0x82);
@@ -127,7 +132,8 @@ BOOL handle_set_interface(BYTE ifc, BYTE alt_ifc)
 	SYNCDELAY();
 	EP6BCL=0X80;
 	SYNCDELAY();
-	return TRUE;
+#endif
+	return true;
 }
 
 /*!
@@ -140,7 +146,7 @@ BOOL handle_set_interface(BYTE ifc, BYTE alt_ifc)
  *=============================================================================
  */
 // get/set configuration
-BYTE handle_get_configuration()
+uint8_t handle_get_configuration()
 {
 	return bConfigurationValue;
 }
@@ -154,18 +160,18 @@ BYTE handle_get_configuration()
  *
  *=============================================================================
  */
- BOOL handle_set_configuration(BYTE cfg)
+ bool handle_set_configuration(uint8_t cfg)
 {
 	bConfigurationValue = cfg; // TBD : check if we plan to switch b/w configs
 	switch (cfg) {
 	case 0 :
-		return TRUE;
+		return true;
 		break;
 	case 1:
-		return TRUE;
+		return true;
 		break;
 	default:
-		return TRUE;
+		return true;
 		break;
 	}
 }

@@ -49,6 +49,8 @@
 
 #define __VENDORCOMMAND_C__
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <fx2regs.h>
 #include <fx2macros.h>
@@ -59,7 +61,7 @@
 #include <pmic_reg.h>
 #include <pmic.h>
 
-extern BYTE hw_version;
+extern uint8_t hw_version;
 
 /*
  * Layout of SERIAL number in EEPROM
@@ -83,7 +85,7 @@ extern BYTE hw_version;
 #define CALIB_DATA_SIZE_HW1				0x0800
 #define CALIB_DATA_SIZE_HW2				0xBF00	// 64k - 0x4100
 
-WORD getCalibDataStart(void)
+uint32_t getCalibDataStart(void)
 {
 	if (hw_version == 2)
 		return CALIB_DATA_START_HW2;
@@ -91,7 +93,7 @@ WORD getCalibDataStart(void)
 		return CALIB_DATA_START_HW1;
 }
 
-static WORD getCalibDataSize(void)
+static uint32_t getCalibDataSize(void)
 {
 	if (hw_version == 2)
 		return CALIB_DATA_SIZE_HW2;
@@ -167,14 +169,14 @@ void handle_uvcrequest(void)
 
 }
 
-BYTE xdata illum_digipot_shadow = 0x80;
+uint8_t __xdata illum_digipot_shadow = 0x80;
 /*
  * Illum Power setting needs to be gated with a scaling factor for compliance with LASER safety
  */
-static void maskIllumPowerRegisters(BYTE regVal)
+static void maskIllumPowerRegisters(uint8_t regVal)
 {
-	BYTE xdata tempReg, regAddr, scaler, maxVal;
-	WORD xdata product;
+	uint8_t __xdata tempReg, regAddr, scaler, maxVal;
+	uint32_t __xdata product;
 
 	/*
 	 * write ACR to allow nonvolatile write
@@ -211,9 +213,9 @@ static void maskIllumPowerRegisters(BYTE regVal)
 /*
  * Some OPT9221 registers have to be masked for compliance with LASER safety
  */
-static void maskTFCRegisters(BYTE slave_addr, BYTE reg_addr, xdata BYTE *dataBuf)
+static void maskTFCRegisters(uint8_t slave_addr, uint8_t reg_addr, __xdata uint8_t *dataBuf)
 {
-	WORD xdata matchRegister = MAKEWORD(slave_addr, reg_addr);
+	uint32_t __xdata matchRegister = MAKEWORD(slave_addr, reg_addr);
 
 	if (matchRegister == REG_OPT9221_INTG_DUTY_CYCLE) {
 		/* intg_duty_cycle (register 0x5C4C, bits 5:0) should not exceed 20/64 */
@@ -238,14 +240,14 @@ static void maskTFCRegisters(BYTE slave_addr, BYTE reg_addr, xdata BYTE *dataBuf
 	}
 }
 
-sbit at 0xF0+7 B7;
-sbit at 0xF0+6 B6;
-sbit at 0xF0+5 B5;
-sbit at 0xF0+4 B4;
-sbit at 0xF0+3 B3;
-sbit at 0xF0+2 B2;
-sbit at 0xF0+1 B1;
-sbit at 0xF0+0 B0;
+__sbit __at 0xF0+7 B7;
+__sbit __at 0xF0+6 B6;
+__sbit __at 0xF0+5 B5;
+__sbit __at 0xF0+4 B4;
+__sbit __at 0xF0+3 B3;
+__sbit __at 0xF0+2 B2;
+__sbit __at 0xF0+1 B1;
+__sbit __at 0xF0+0 B0;
 
 /*
  * OPT9221 boot EEPROM to FX2 connections
@@ -269,7 +271,7 @@ sbit at 0xF0+0 B0;
 #define nSS_LO	nSS = 0; NOP;
 #define nSS_HI	nSS = 1; NOP;
 
-void spi_write_byte(BYTE dataOut)
+void spi_write_byte(uint8_t dataOut)
 {
 	B = dataOut;
 
@@ -283,7 +285,7 @@ void spi_write_byte(BYTE dataOut)
 	MOSI = B0; SCK_HI; SCK_LO;
 }
 
-BYTE spi_read_byte(void)
+uint8_t spi_read_byte(void)
 {
 	B7 = MISO; SCK_HI; SCK_LO;
 	B6 = MISO; SCK_HI; SCK_LO;
@@ -307,7 +309,7 @@ BYTE spi_read_byte(void)
  *=============================================================================
  */
 
-BOOL handle_vendorcommand(BYTE cmd) {
+bool handle_vendorcommand(uint8_t cmd) {
 		//SETUPDATA[0] -
 /*		D7: Data transfer direction
  		0 = Host-to-device
@@ -324,14 +326,14 @@ BOOL handle_vendorcommand(BYTE cmd) {
 		3 = Other
 		4...31 = Reserved
  */
-	BOOL handshake = TRUE;
-	BOOL direction;
-	WORD len, i;
-	BYTE bRequest, status;
-	BYTE xdata dat[64];
-	BYTE reg_addr[4];
-	BYTE slave_addr;
-	BYTE spi_addr[3];
+	bool handshake = true;
+	bool direction;
+	uint32_t len, i;
+	uint8_t bRequest, status;
+	uint8_t __xdata dat[64];
+	uint8_t reg_addr[4];
+	uint8_t slave_addr;
+	uint8_t spi_addr[3];
 
 	bRequest =  SETUPDAT[1];
 	direction = (SETUPDAT[0] & 0x80);
@@ -764,7 +766,7 @@ BOOL handle_vendorcommand(BYTE cmd) {
 	// case GET_SERIAL_NUMBER as well
 		if (direction) {
 			// Read
-			BYTE serialLength;
+			uint8_t serialLength;
 
 			eeprom_read(FX2_BOOTEEPROM_SLAVE, SERIAL_NUMBER_LEN_OFFSET, 1, &serialLength);
 			if ((serialLength == 0x00) || (serialLength == 0xFF))
@@ -783,7 +785,7 @@ BOOL handle_vendorcommand(BYTE cmd) {
 			EP0BCL = serialLength;
 		} else {
 			// Write
-			WORD checksum;
+			uint32_t checksum;
 
 			EP0BCL = 0;
 			while (EP0CS & bmEPBUSY);
@@ -838,7 +840,7 @@ BOOL handle_vendorcommand(BYTE cmd) {
 		break;
 	case TEST_MULTIPLY:
 		if (direction) {
-			WORD retVal = SETUPDAT[3] * SETUPDAT[2];
+			uint32_t retVal = SETUPDAT[3] * SETUPDAT[2];
 			// wValue = MAKEWORD(SETUPDAT[3], SETUPDAT[2]);
 			EP0BUF[0] = LSB(retVal);
 			EP0BUF[1] = MSB(retVal);
@@ -851,8 +853,8 @@ BOOL handle_vendorcommand(BYTE cmd) {
 	// case EEPROM_RETRIEVE as well
 		if (direction) {
 			// Read -> Retrieve
-			WORD readAddress = getCalibDataStart();
-			BYTE transferSize;
+			uint32_t readAddress = getCalibDataStart();
+			uint8_t transferSize;
 			readAddress += reg_addr[1];
 			readAddress += (reg_addr[0] << 8);
 			i = len;	// reusing i as bytesPending
@@ -925,7 +927,7 @@ BOOL handle_vendorcommand(BYTE cmd) {
 		break;
 
 	default:
-		handshake = FALSE;
+		handshake = false;
 		STALLEP0();
 		EP0BCH = 0;
 		EP0BCL = 0;
@@ -933,7 +935,10 @@ BOOL handle_vendorcommand(BYTE cmd) {
 	}
 
 	if (handshake)
+        { 
 		EP0CS |= bmHSNAK;
+        }
+
 	return handshake;
 }
 

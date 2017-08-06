@@ -14,6 +14,8 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "fx2timer.h"
 #include "fx2macros.h"
 #include "fx2ints.h"
@@ -90,11 +92,11 @@ when T0M = 1, Timer 0 uses CLKOUT/4.
 
 #define bmCKCON_T0 bmBIT3
 
-static WORD timer0us = 0;
-static BYTE timer0us_tl;
-static BYTE timer0us_th;
+static uint32_t timer0us = 0;
+static uint8_t timer0us_tl;
+static uint8_t timer0us_th;
 
-void fx2_setup_timer0(WORD us) {
+void fx2_setup_timer0(uint32_t us) {
 
 /*
 Duty cycle:

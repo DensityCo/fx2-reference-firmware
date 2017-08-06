@@ -49,6 +49,8 @@
 
 #define __FIFO_GPIF_CFG_C__
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <fx2regs.h>
 #include <fx2macros.h>
@@ -58,14 +60,14 @@
 #include <lights.h>
 #include <eputils.h>
 #include <i2c.h>
-#include <fx2timer.h>
+//#include <fx2timer.h>
 #include <gpif_fifowrite_ctl2_data.h>
 #include <pmic_reg.h>
 #include <main.h>
 #include <pmic.h>
 #include <common.h>
 
-extern BYTE fw_tx_size[4];
+extern uint8_t fw_tx_size[4];
 
 void TD_Init(char mode)
 {

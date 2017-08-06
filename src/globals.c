@@ -49,6 +49,8 @@
 
 #define __GLOBALS_C__
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <fx2regs.h>
 #include <fx2macros.h>
@@ -63,15 +65,15 @@
 #include <pmic_reg.h>
 #include <main.h>
 
-volatile BYTE timer0_running;
-volatile bit got_sud;
-BYTE fw_download_done;
-BYTE gpif_mode_on = 0;
-BYTE slave_mode_on = 0;
+volatile uint8_t timer0_running;
+volatile bool got_sud;
+uint8_t fw_download_done;
+uint8_t gpif_mode_on = 0;
+uint8_t slave_mode_on = 0;
 // 0->Unset
 // 1-> Rev1
 // 2-> Rev2.0
-BYTE hw_version = 0;
+uint8_t hw_version = 0;
 
 #undef __GLOBALS_C__
 /*! @} */

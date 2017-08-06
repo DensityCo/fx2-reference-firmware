@@ -143,8 +143,8 @@ MAKE		:= make
 all : $(OUT_DIR)/$(OUTPUT).hex $(OUT_DIR)	\
 	$(OUT_DIR)/$(OUTPUT).iic $(OUT_DIR)
 
-#$(OUT_DIR) :
-#	$(MKDIR) $@
+$(OUT_DIR) :
+	$(MKDIR) $@
 
 $(OUT_DIR)/$(OUTPUT).ihx : $(AS_MODULES:.a51=.rel) $(CC_MODULES:.c=.rel) $(OUT_DIR)
 	$(LD) $(LIBS) $(LDFLAGS) $(CC_MODULES:.c=.rel) $(AS_MODULES:.a51=.rel) \

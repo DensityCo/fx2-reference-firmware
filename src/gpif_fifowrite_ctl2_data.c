@@ -47,6 +47,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdint.h>
 #include <fx2regs.h>
 #include <fx2macros.h>
 #include <delay.h>
@@ -56,7 +57,7 @@
 
 // firmware download ctrl_2
 // DO NOT EDIT ...
-const char xdata WaveData[128] =
+const char __xdata WaveData[128] =
 {
 // Wave 0
 /* LenBr */ 0x01,     0x01,     0x01,     0x01,     0x01,     0x01,     0x01,     0x07,
@@ -82,7 +83,7 @@ const char xdata WaveData[128] =
 // END DO NOT EDIT
 
 // DO NOT EDIT ...
-const char xdata FlowStates[36] =
+const char __xdata FlowStates[36] =
 {
 /* Wave 0 FlowStates */ 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 /* Wave 1 FlowStates */ 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -92,7 +93,7 @@ const char xdata FlowStates[36] =
 // END DO NOT EDIT
 
 // DO NOT EDIT ...
-const char xdata InitData[7] =
+const char __xdata InitData[7] =
 {
 /* Regs  */ 0xA0,0x10,0x00,0x00,0xEE,0x4E,0x00
 };
@@ -102,7 +103,7 @@ const char xdata InitData[7] =
 
 void GpifInit( void )
 {
-	BYTE i;
+	uint8_t i;
 
 	// Registers which require a synchronization delay, see section 15.14
 	// FIFORESET        FIFOPINPOLAR

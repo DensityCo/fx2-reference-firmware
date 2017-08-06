@@ -60,17 +60,22 @@
 #include <eputils.h>
 #include <i2c.h>
 //#include <fx2timer.h>
+#include <fx2ints.h>
 #include <gpif_fifowrite_ctl2_data.h>
 #include <pmic_reg.h>
 #include <main.h>
 #include <common.h>
+#include <stdbool.h>
+#include <stdint.h>
 
-extern volatile bit got_sud;
-extern BYTE fw_download_done ;
-extern volatile BYTE timer0_running;
-xdata WORD sofct=0;
-bit EP2PF ;
-bit on5=0;
+extern volatile bool got_sud;
+extern uint8_t fw_download_done ;
+#if 0
+extern volatile uint8_t timer0_running;
+#endif
+__xdata uint32_t sofct=0;
+bool EP2PF ;
+bool on5=0;
 
 
 /*!
@@ -82,9 +87,9 @@ bit on5=0;
  *
  *=============================================================================
  */
-void sudav_isr() interrupt SUDAV_ISR
+void sudav_isr() __interrupt SUDAV_ISR
 {
-	got_sud = TRUE;
+	got_sud = true;
 	CLEAR_SUDAV();
 }
 
@@ -98,7 +103,7 @@ void sudav_isr() interrupt SUDAV_ISR
  *=============================================================================
  */
 
-void sof_isr() interrupt SOF_ISR using 1 {
+void sof_isr() __interrupt SOF_ISR __using 1 {
     ++sofct;
     if (sofct == 8000) { // about 8000 sof interrupts per second at high speed
         on5=!on5;
@@ -119,7 +124,7 @@ void sof_isr() interrupt SOF_ISR using 1 {
  */
 
 
-void usbreset_isr() interrupt USBRESET_ISR {
+void usbreset_isr() __interrupt USBRESET_ISR {
     handle_hispeed(FALSE);
     CLEAR_USBRESET();
 }
@@ -134,7 +139,7 @@ void usbreset_isr() interrupt USBRESET_ISR {
  *=============================================================================
  */
 
-void hispeed_isr() interrupt HISPEED_ISR {
+void hispeed_isr() __interrupt HISPEED_ISR {
     handle_hispeed(TRUE);
     CLEAR_HISPEED();
 }
@@ -178,7 +183,7 @@ void ep2pf_isr() interrupt EP2PF_ISR {
  *=============================================================================
  */
 
-void gpifdone_isr() interrupt GPIFDONE_ISR
+void gpifdone_isr() __interrupt GPIFDONE_ISR
 {
 
 	CLEAR_GPIFDONE();
@@ -208,10 +213,13 @@ void gpifdone_isr() interrupt GPIFDONE_ISR
  *=============================================================================
  */
 
-void timer0_start(WORD us)
+void timer0_start()
 {
+#if 0
 	timer0_running= 1;
 	fx2_setup_timer0(us);
+#endif
+        ENABLE_TIMER0();
 }
 
 /*!
@@ -226,7 +234,9 @@ void timer0_start(WORD us)
 
 void timer0_callback(void)
 {
+#if 0
 	timer0_running= 0;
+#endif
 }
 
 #undef __HANDLER_ISR_C__
