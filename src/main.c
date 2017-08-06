@@ -66,18 +66,19 @@
 #include <pmic.h>
 #include <fifo_gpif_config.h>
 #include <common.h>
-
+#include <stdbool.h>
+#include <stdint.h>
 
 extern volatile BYTE timer0_running;
-extern volatile bit got_sud;
-extern BYTE fw_download_done;
-extern BYTE config_done;
-extern BYTE gpif_mode_on ;
-extern BYTE slave_mode_on;
-extern BYTE hw_version;
+extern volatile bool got_sud;
+extern uint8_t fw_download_done;
+extern uint8_t config_done;
+extern uint8_t gpif_mode_on ;
+extern uint8_t slave_mode_on;
+extern uint8_t hw_version;
 
 
-extern code WORD serialnumber_0;
+extern uint32_t serialnumber_0;
 
 #define FX2_BOOTEEPROM_SLAVE			0x51
 #define SERIAL_NUMBER_OFFSET			0x3FE0
@@ -88,7 +89,7 @@ extern code WORD serialnumber_0;
 
 static void checkHWVersion(void)
 {
-	BYTE xdata c2;
+	uint8_t __xdata c2;
 
 	eeprom_read(FX2_BOOTEEPROM_SLAVE, 0x4000, 1, &c2);
 
@@ -105,13 +106,13 @@ static void checkHWVersion(void)
 
 static void patch_descriptors(void)
 {
-	BYTE xdata dat[SERIAL_NUMBER_LEN_MAX+3];
-	xdata BYTE *pSerial = (xdata BYTE *) &serialnumber_0;
-	BYTE status;
-	WORD checksum;
-	BYTE xdata eepromChecksum[2];
-	BYTE xdata serialLength;
-	int i = 0;
+	uint8_t __xdata dat[SERIAL_NUMBER_LEN_MAX+3];
+	__xdata uint8_t *pSerial = (__xdata uint8_t *) &serialnumber_0;
+	uint8_t status;
+	uint32_t checksum;
+	uint8_t __xdata eepromChecksum[2];
+	uint8_t __xdata serialLength;
+	uint32_t i = 0;
 
 	// Try to read the length of the serial number and the checksum
 	eeprom_read(FX2_BOOTEEPROM_SLAVE, SERIAL_NUMBER_LEN_OFFSET, 1, &serialLength);
@@ -158,8 +159,8 @@ static void patch_descriptors(void)
 
 void main()
 {
-	int n = 0;
-	BOOL dc_jack_unplugged;
+	int32_t n = 0;
+	bool dc_jack_unplugged;
 	fw_download_done = 0;
 
 	// All PortA and PortD signals are inputs
