@@ -5,3 +5,5 @@
 *.rst
 src/release
 src/debug
+*.swp
+
