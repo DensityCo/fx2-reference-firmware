@@ -169,7 +169,7 @@ void main()
 	OED = 0x88;
 	PD7 = 1;
 	PD3 = 0;
-
+#if 0
 	/* First stage init to turn off all rails except FX2 */
 	PMIC_init();
 
@@ -184,7 +184,7 @@ void main()
 	I2CTL = 0x01;
 
 	got_sud=FALSE;
-
+#endif
 	patch_descriptors();
 	// renumerate
 	RENUMERATE_UNCOND();
