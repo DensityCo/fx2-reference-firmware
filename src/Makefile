@@ -139,8 +139,8 @@ MAKE		:= make
 #---------------------------------------------------------
 #  	Build Targets 
 #---------------------------------------------------------
-all : $(OUT_DIR)/$(OUTPUT).hex $(OUT_DIR)	\
-	$(OUT_DIR)/$(OUTPUT).iic $(OUT_DIR)
+all : $(OUT_DIR)/$(OUTPUT).hex $(OUT_DIR)#	\
+#	$(OUT_DIR)/$(OUTPUT).iic $(OUT_DIR)
 
 $(OUT_DIR) :
 	$(MKDIR) $@
@@ -152,8 +152,8 @@ $(OUT_DIR)/$(OUTPUT).ihx : $(AS_MODULES:.a51=.rel) $(CC_MODULES:.c=.rel) $(OUT_D
 $(OUT_DIR)/$(OUTPUT).hex : $(OUT_DIR)/$(OUTPUT).ihx
 	$(PACKIHX) $(OUT_DIR)/$(OUTPUT).ihx > $(OUT_DIR)/$(OUTPUT).hex
 
-$(OUT_DIR)/$(OUTPUT).iic : $(OUT_DIR)/$(OUTPUT).hex
-	$(HEX2BIX) -M 0x8000 -I -C 0x00 -F 0xC2 -O $(OUT_DIR)/$(OUTPUT).iic $(OUT_DIR)/$(OUTPUT).hex
+#$(OUT_DIR)/$(OUTPUT).iic : $(OUT_DIR)/$(OUTPUT).hex
+#	$(HEX2BIX) -M 0x8000 -I -C 0x00 -F 0xC2 -O $(OUT_DIR)/$(OUTPUT).iic $(OUT_DIR)/$(OUTPUT).hex
 
 #%.rel : %.c
 #	$(CC) $(CCFLAGS) -o $@ $<	

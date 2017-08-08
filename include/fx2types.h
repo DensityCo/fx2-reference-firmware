@@ -21,14 +21,10 @@
 #ifndef FXTYPES_H
 #define FXTYPES_H
 
-typedef unsigned int WORD;
-typedef unsigned char BYTE;
-typedef unsigned long DWORD;
-typedef unsigned char BOOL; 
-typedef enum {
- FALSE=0,
- TRUE
-} BOOL_VALS;
+typedef uint16_t WORD;
+typedef uint8_t BYTE;
+typedef uint32_t DWORD;
+typedef bool BOOL; 
 
 #ifndef NULL
 #define NULL (void*)0
