@@ -69,7 +69,7 @@ BUILD		= release
 #  	Project Directories - modify as required
 #---------------------------------------------------------
 INCLUDES 	:= -I$(FX2_INC_DIR) -I$(PROJ_DIR)
-OUT_DIR 	:= $(PROJ_DIR)/$(BUILD)
+#OUT_DIR 	:= $(PROJ_DIR)/$(BUILD)
 OUTPUT		:= fx2_main
 LIBS 		:= $(FX2_DIR)/lib/fx2.lib
 DOXY_DIR	:= $(PROJ_DIR)/dox
@@ -101,7 +101,7 @@ AS_MODULES 	:= 						\
 #---------------------------------------------------------
 AS		:= sdas8051 
 CC 		:= sdcc
-LD		:= sdcc -l
+LD		:= sdcc
 AR		:= sdcclib
 PACKIHX		:= packihx
 DOXYGEN		:= doxygen
@@ -142,11 +142,11 @@ MAKE		:= make
 all : $(OUT_DIR)/$(OUTPUT).hex $(OUT_DIR)#	\
 #	$(OUT_DIR)/$(OUTPUT).iic $(OUT_DIR)
 
-$(OUT_DIR) :
-	$(MKDIR) $@
+#$(OUT_DIR) :
+#	$(MKDIR) $@caseykelso
 
 $(OUT_DIR)/$(OUTPUT).ihx : $(AS_MODULES:.a51=.rel) $(CC_MODULES:.c=.rel) $(OUT_DIR)
-	$(LD) $(LIBS) $(LDFLAGS) $(CC_MODULES:.c=.rel) $(AS_MODULES:.a51=.rel) \
+	$(LD) -L  $(FX2_DIR) -l $(LIBS) $(LDFLAGS) $(CC_MODULES:.c=.rel) $(AS_MODULES:.a51=.rel) \
 		-o $(OUT_DIR)/$(OUTPUT).ihx
 
 $(OUT_DIR)/$(OUTPUT).hex : $(OUT_DIR)/$(OUTPUT).ihx
@@ -155,11 +155,11 @@ $(OUT_DIR)/$(OUTPUT).hex : $(OUT_DIR)/$(OUTPUT).ihx
 #$(OUT_DIR)/$(OUTPUT).iic : $(OUT_DIR)/$(OUTPUT).hex
 #	$(HEX2BIX) -M 0x8000 -I -C 0x00 -F 0xC2 -O $(OUT_DIR)/$(OUTPUT).iic $(OUT_DIR)/$(OUTPUT).hex
 
-#%.rel : %.c
-#	$(CC) $(CCFLAGS) -o $@ $<	
+%.rel : %.c
+	$(CC) $(CCFLAGS) -o $@ $<	
 
-#%.rel : %.a51
-#	$(AS) $(ASFLAGS) $<
+%.rel : %.a51
+	$(AS) $(ASFLAGS) $<
 
 #---------------------------------------------------------
 #  	Clean Up 
