@@ -7,3 +7,4 @@ src/release
 src/debug
 *.swp
 *.swo
+tags
