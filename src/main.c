@@ -69,6 +69,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+
 extern volatile BYTE timer0_running;
 extern volatile bool got_sud;
 extern uint8_t fw_download_done;
@@ -194,10 +195,10 @@ void main()
 	// renumerate
 	RENUMERATE_UNCOND();
 
-//TODO: #define SETINTCLOCK() IFCONFIG  |= bmIFCLKSRC
+        #define SETINTCLOCK() IFCONFIG  |= bmIFCLKSRC
 
 	// run on internal IFCLOCK
-//TODO:	SETINTCLOCK();
+        SETINTCLOCK();
 
 	// CPU runs at 48 MHz
 	SETCPUFREQ(CLK_48M);
@@ -206,8 +207,10 @@ void main()
 	//internal clock of 48MHz
 	SETIF48MHZ();
 
+        #define SETENIFCLOCKDRIVE() IFCONFIG |= bmIFCLKOE
+
 	//enable ifclock drive
-//TODO:	SETENIFCLOCKDRIVE();
+        SETENIFCLOCKDRIVE();
 
 	//enable interrupts , SOF required??
 	USE_USB_INTS();
