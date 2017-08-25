@@ -78,7 +78,7 @@ extern uint8_t slave_mode_on;
 extern uint8_t hw_version;
 
 
-extern uint32_t serialnumber_0;
+uint32_t serialnumber_0; //TODO: read this in during Init and store here
 
 #define FX2_BOOTEEPROM_SLAVE			0x51
 #define SERIAL_NUMBER_OFFSET			0x3FE0
@@ -189,8 +189,10 @@ void main()
 	// renumerate
 	RENUMERATE_UNCOND();
 
+//TODO: #define SETINTCLOCK() IFCONFIG  |= bmIFCLKSRC
+
 	// run on internal IFCLOCK
-	SETINTCLOCK();
+//TODO:	SETINTCLOCK();
 
 	// CPU runs at 48 MHz
 	SETCPUFREQ(CLK_48M);
@@ -200,7 +202,7 @@ void main()
 	SETIF48MHZ();
 
 	//enable ifclock drive
-	SETENIFCLOCKDRIVE();
+//TODO:	SETENIFCLOCKDRIVE();
 
 	//enable interrupts , SOF required??
 	USE_USB_INTS();
