@@ -120,7 +120,7 @@ CCFLAGS		:= -mmcs51 $(INCLUDES) -c
 #  	LD Flags	
 #---------------------------------------------------------
 LDFLAGS		:= --code-size 0x3900 --xram-size 0x0200 --xram-loc 0xE000 
-LDFLAGS		+= -Wl"-b DSCR_AREA=0x3900" -Wl"-b INT2JT=0x3f00" -Wl"-b INT4JT=0x3e00"
+LDFLAGS		+= -Wl"-b DSCR_AREA=0x3900" -Wl"-b INT2JT=0x3f00" 
 
 #---------------------------------------------------------
 #  	Set the shell type	
