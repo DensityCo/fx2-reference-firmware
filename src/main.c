@@ -104,6 +104,11 @@ static void checkHWVersion(void)
 	}
 }
 
+BOOL handle_get_descriptor() {
+  return FALSE;
+}
+
+
 static void patch_descriptors(void)
 {
 	uint8_t __xdata dat[SERIAL_NUMBER_LEN_MAX+3];
