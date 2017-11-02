@@ -67,7 +67,8 @@
 
 // value (low byte) = ep
 #define VC_EPSTAT 0xB1
-//#define SYNCDELAY() SYNCDELAY4
+#define SYNCDELAY() SYNCDELAY4
+
 uint8_t alt_ifc_if1 = 0;
 
 const char __xdata LUT_AUTOINLENL[4] = {0xE0, 0xD0, 0x2C,0x00};
@@ -105,20 +106,22 @@ bool handle_get_interface(uint8_t ifc, uint8_t* alt_ifc)
 bool handle_set_interface(uint8_t ifc, uint8_t alt_ifc)
 {
 //TODO: FIX SYNCDELAY undefined SYMBOL
-#if 0
 
 	EP2AUTOINLENL = LUT_AUTOINLENL[alt_ifc];
 	EP2AUTOINLENH = LUT_AUTOINLENH [alt_ifc];
 	alt_ifc_if1 = alt_ifc;
-
 	// SEE TRM 2.3.7
 	// reset toggles
 	RESETTOGGLE(0x82);
 	RESETTOGGLE(0x06);
-	RESETFIFOS();
+
+//      RESETFIFOS(); has a typo in the define should be FIFORESET=0x80; SYNCDELAY(), but it's not;
+        FIFORESET=0x80;
+        SYNCDELAY();
 	EP2BCL=0x80;
-	SYNCDELAY();
-	EP2BCL=0X80;
+
+        SYNCDELAY();
+        EP2BCL=0X80;
 	SYNCDELAY();
 	EP2BCL=0x80;
 	SYNCDELAY();
@@ -132,7 +135,6 @@ bool handle_set_interface(uint8_t ifc, uint8_t alt_ifc)
 	SYNCDELAY();
 	EP6BCL=0X80;
 	SYNCDELAY();
-#endif
 	return true;
 }
 

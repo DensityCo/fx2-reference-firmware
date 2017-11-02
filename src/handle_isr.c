@@ -70,9 +70,7 @@
 
 extern volatile bool got_sud;
 extern uint8_t fw_download_done ;
-#if 0
 extern volatile uint8_t timer0_running;
-#endif
 __xdata uint32_t sofct=0;
 bool EP2PF ;
 bool on5=0;
