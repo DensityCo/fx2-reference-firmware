@@ -52,12 +52,12 @@ _dev_dscr:
 	.db	dev_dscr_end-_dev_dscr    ; len
 	.db	DSCR_DEVICE_TYPE		  ; type
 	.dw	0x0002					  ; usb 2.0
-	.db	0xff  					  ; class (vendor specific)
-	.db	0xff					  ; subclass (vendor specific)
-	.db	0xff					  ; protocol (vendor specific)
+        .db	0x0  					  ; class (vendor specific)
+        .db	0x0					  ; subclass (vendor specific)
+        .db	0x0					  ; protocol (vendor specific)
 	.db	64						  ; packet size (ep0)
-	.dw	0xB404					  ; vendor id 
-	.dw	0x0410					  ; product id
+        .dw	0x5104					  ; vendor id
+        .dw	0x0591					  ; product id
 	.dw	0x0100					  ; version id
 	.db	1		                  ; manufacturure str idx
 	.db	2				          ; product str idx	
@@ -69,9 +69,9 @@ _dev_qual_dscr:
 	.db	dev_qualdscr_end-_dev_qual_dscr
 	.db	DSCR_DEVQUAL_TYPE
 	.dw	0x0002                              ; usb 2.0
-	.db	0xff
-	.db	0xff
-	.db	0xff
+        .db	0x00
+        .db	0x00
+        .db	0x00
 	.db	64                                  ; max packet
 	.db	1									; n configs
 	.db	0									; extra reserved byte
@@ -98,16 +98,16 @@ highspd_dscr_end:
 	.db	DSCR_INTERFACE_TYPE
 	.db	0				 ; index
 	.db	0				 ; alt setting idx
-	.db	2				 ; n endpoints	
-	.db	0xff			 ; class
-	.db	0xff
-	.db	0xff
-	.db	3	             ; string index	
+        .db	1				 ; n endpoints
+        .db	0x00			 ; class
+        .db	0x00
+        .db	0x00
+        .db	2	             ; string index
 
 ; endpoint 2 out
 	.db	DSCR_ENDPOINT_LEN
 	.db	DSCR_ENDPOINT_TYPE
-	.db	0x02				;  ep2 dir=OUT and address
+        .db	0x82				;  ep2 dir=IN and address
 	.db	ENDPOINT_TYPE_BULK	; type
 	.db	0x00				; max packet LSB
 	.db	0x02				; max packet size=512 bytes
@@ -185,39 +185,63 @@ string0end:
 _string1:
     .db string1end-_string1
     .db DSCR_STRING_TYPE
-    .ascii 'H'
+    .ascii 'T'
     .db 0
-    .ascii 'i'
+    .ascii 'I'
     .db 0
 string1end:
 
 _string2:
     .db string2end-_string2
     .db DSCR_STRING_TYPE
+    .ascii 'C'
+    .db 0
+    .ascii 'D'
+    .db 0
+    .ascii 'K'
+    .db 0
+    .ascii '-'
+    .db 0
+    .ascii 'O'
+    .db 0
+    .ascii 'P'
+    .db 0
     .ascii 'T'
     .db 0
-    .ascii 'h'
+    .ascii '8'
     .db 0
-    .ascii 'e'
+    .ascii '2'
     .db 0
-    .ascii 'r'
+    .ascii '4'
     .db 0
-    .ascii 'e'
+    .ascii '1'
     .db 0
 string2end:
 
 _string3:
     .db string3end-_string3
     .db DSCR_STRING_TYPE
-    .ascii 'i'
+    .ascii 'C'
     .db 0
-    .ascii 'F'
+    .ascii 'D'
     .db 0
-    .ascii 'a'
+    .ascii 'K'
     .db 0
-    .ascii 'c'
+    .ascii '-'
     .db 0
-    .ascii 'e'
+    .ascii 'O'
+    .db 0
+    .ascii 'P'
+    .db 0
+    .ascii 'T'
+    .db 0
+    .ascii '8'
+    .db 0
+    .ascii '2'
+    .db 0
+    .ascii '4'
+    .db 0
+    .ascii '1'
     .db 0
 string3end:
     
