@@ -173,7 +173,7 @@ void main()
 	// except PD7, which is OPT9221 resetZ
 	OEA = 0x00;
 	OED = 0x88;
-	PD7 = 1;
+        PD7 = 0; // Put the 9221 in reset
 	PD3 = 0;
 
 	/* First stage init to turn off all rails except FX2 */
@@ -244,9 +244,10 @@ void main()
 		EP8FIFOCFG = 0x4C;
 		SYNCDELAY();
 		TD_Init(MODE_SLAVE_FIFO);
-		PD7 = 0;
 		delay(100);
+#if LASER_ON
 		PD7 = 1;
+#endif
 		delay(100);
 		slave_mode_on = 1;
 
