@@ -232,9 +232,9 @@ void timer0_start()
 
 void timer0_callback(void)
 {
-#if 0
+//#if 0
 	timer0_running= 0;
-#endif
+//#endif
 }
 
 #undef __HANDLER_ISR_C__

@@ -105,7 +105,6 @@ bool handle_get_interface(uint8_t ifc, uint8_t* alt_ifc)
  */
 bool handle_set_interface(uint8_t ifc, uint8_t alt_ifc)
 {
-//TODO: FIX SYNCDELAY undefined SYMBOL
 
 	EP2AUTOINLENL = LUT_AUTOINLENL[alt_ifc];
 	EP2AUTOINLENH = LUT_AUTOINLENH [alt_ifc];
