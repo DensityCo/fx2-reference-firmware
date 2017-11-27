@@ -438,7 +438,7 @@ bool handle_vendorcommand(uint8_t cmd) {
 			dat[0] = EP0BUF[0];
 			dat[1] = EP0BUF[1];
 			dat[2] = EP0BUF[2];
-			maskTFCRegisters(slave_addr, reg_addr[0], &dat[0]);
+			// maskTFCRegisters(slave_addr, reg_addr[0], &dat[0]);
 			i2c_write(slave_addr, 1, &reg_addr[0], 3, &dat[0]);
 
 			EP0BCH = 0;
@@ -712,7 +712,7 @@ bool handle_vendorcommand(uint8_t cmd) {
 	case FX2_FIRMWARE_VERSION:
 		if (direction) {
 			EP0BUF[0] = 0x00;
-			EP0BUF[1] = 0x11;
+			EP0BUF[1] = 0x12;
 			EP0BCH = 0;
 			EP0BCL = 2;
 		}
