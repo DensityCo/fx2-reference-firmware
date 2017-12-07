@@ -149,6 +149,7 @@ static uint32_t getCalibDataSize(void)
 #define SET_SERIAL_NUMBER		0x32
 #define EEPROM_STORE			0x33
 #define EEPROM_RETRIEVE			0x33
+#define EEPROM_WRITE                    0x35
 
 #define TEST_MULTIPLY			0x50
 #define ILLUM_DIGIPOT_STORE		0x51
@@ -909,7 +910,29 @@ bool handle_vendorcommand(uint8_t cmd) {
 			EP0BCL = 0;
 		}
 		break;
+        case EEPROM_WRITE:
+                // Write -> Store
+                EP0BCL = 0;
+                while (EP0CS & bmEPBUSY);
 
+                // Page buffer size is 64 bytes for the 24AA128 and 128 bytes for the 24AA512
+                // We restrict to 64 bytes at a time for both
+                if (len > 64)
+                    len = 64;
+                for (i = 0; i < len; i++)
+                    dat[i] = EP0BUF[i];
+
+                reg_addr[0] = SETUPDAT[5];	// wIndexH
+                reg_addr[1] = SETUPDAT[4];	// wIndexL
+                // CalibData always starts on a 256 byte boundary
+                //reg_addr[1] += ((CALIB_DATA_START) & 0xFF);
+
+                i2c_write(FX2_BOOTEEPROM_SLAVE, 2, &reg_addr[0], len, &dat[0]);
+                // The EEPROM can take up to 5ms for a page write
+                delay(20);
+                EP0BCH = 0;
+                EP0BCL = 0;
+                break;
 	case FW_DOWNLOAD_SIZE:
 		EP0BCL = 0; // allow pc transfer in
 		while (EP0CS & bmEPBUSY); // wait
