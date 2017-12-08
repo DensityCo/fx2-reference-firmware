@@ -229,7 +229,7 @@ void main()
 		PINFLAGSCD = 0x0B ; // EP8-EF
 	} else {
 		dc_jack_unplugged = 0;
-		setLEDBrightness(0x1F);
+                setLEDBrightness(0x01);
 		PINFLAGSCD = 0x0F ; // EP8-FF
 	}
 
