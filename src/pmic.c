@@ -84,7 +84,11 @@ void pmic_writeReg(BYTE reg_addr, BYTE dat)
 
 void PMIC_init(void)
 {
-	pmic_writeReg(DCDC1_AVS, 0x00);
+
+        #define OPT8241_5V   DCDC1_AVS
+        #define DISABLE_RAIL 0x0
+
+	pmic_writeReg(OPT8241_5V, DISABLE_RAIL);  // disable OPT8241 5v rail -> VCC_OUT_1V5->VCC_MIX->OPT8241(VMIXH)
 	pmic_writeReg(DCDC4_AVS, 0x00);
 
 	pmic_writeReg(LDO1_AVS, 0x00);
