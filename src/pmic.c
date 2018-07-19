@@ -85,19 +85,47 @@ void pmic_writeReg(BYTE reg_addr, BYTE dat)
 void PMIC_init(void)
 {
 
-        #define OPT8241_5V   DCDC1_AVS
-        #define DISABLE_RAIL 0x0
+        #define OPT8241_5V	DCDC1_AVS
+        #define DISABLE		0x0
+	
 
-	pmic_writeReg(OPT8241_5V, DISABLE_RAIL);  // disable OPT8241 5v rail -> VCC_OUT_1V5->VCC_MIX->OPT8241(VMIXH)
+	// disable OPT8241 5v rail 
+	// DCDC1_AVS->VCC_OUT_1V5->VCC_MIX->OPT8241(VMIXH)
+	// 7.28.2.1.6
+	pmic_writeReg(OPT8241_5V, DISABLE);
+
+	// disable OPT9221 core voltage
+	// DCDC4_AVS	->VCC_OUT_1V2	->VCC_TFC_CORE_1V2->VCCINT
+	// 				->VCC_TFC_PLL_1V2 ->VCCD_PLL1,2,3,4
 	pmic_writeReg(DCDC4_AVS, 0x00);
 
+	//LDO = low dropout linear regulator, literally reduces (drops) voltage
+	
+	//VLDO1->VCC_ILUM_REF->ILUM_REF on OPT9221_ILLUMINATION 
 	pmic_writeReg(LDO1_AVS, 0x00);
+	
+	//VLDO2->VCC_FB->VCC_ILLUM_FB_REF->COMP_MOD_REF on OPT9221_ILLUMINATION
 	pmic_writeReg(LDO2_AVS, 0x00);
+	
+	//VLDO3->VCC_OUT_2V5	->VCC_TFC_IOVDD_2V5	->RSVD_IN6, RSVD_IN7 on OPT9221_CAPTURE
+	//						->VCCIO5 on OPT9221_POWER
+	//			->VCC_TFC_CONFIG	->TIC_I, TIC_S, BOOT_1, BOOT_0 on OPT9221_CONFIG	
+	//			->VCC_TFC_PLL_2V5	->VCCA1,2,3,4 on OPT9221_POWER
 	pmic_writeReg(LDO3_AVS, 0x00);
+	
+	//LDO4->GND
 	pmic_writeReg(LDO4_AVS, 0x00);
+	
+	//VOID
 	pmic_writeReg(LDO5, 0x00);
+	
+	//VLDO6->VCC_OUT_0V9->VCC_DDR2_0V9->DDR2_REF_0, DDR2_REF_1 on OPT9221_DDR_INTERFACE
 	pmic_writeReg(LDO6, 0x00);
+
+	//VLDO7->VCC_OUT_PVDD->VCC_SENSOR_PVDD->PVDD on OPT8241_POWER
 	pmic_writeReg(LDO7, 0x00);
+
+	//VLDO8->VCC_MAIN_OUT_5V->PMIC,FX2 DATA CONTROL
 	pmic_writeReg(LDO8, 0x00);
 	pmic_writeReg(LDO10, 0x00);
 
@@ -210,7 +238,8 @@ void PMIC_init2(void)
 	pmic_writeReg(LEDA_CTRL2, 0x0F);
 	pmic_writeReg(LEDB_CTRL2, 0x0F);
 	pmic_writeReg(LEDC_CTRL2, 0x0F);
-
+	
+	//turned on by LDO8->VCC_MAIN_OUT_5V
 	//set the ON duty cycle 100 %
 	pmic_writeReg(LEDA_CTRL7, 0x1F);
 	pmic_writeReg(LEDB_CTRL7, 0x1F);
